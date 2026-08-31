@@ -19,4 +19,7 @@ jobs:
           test -s README.md
           test -s docs/PROJECT.md
           test -s docs/OVERSEER.md
+          test -s docs/PRODUCT_POSITION.md
+          test -s docs/AGENTOS_INTEGRATION.md
+          test -s docs/ROADMAP.md
           test -s .github/workflows/validate.yml
