@@ -22,9 +22,9 @@ The PRS Overseer maintains project assurance, identifies reliability gaps, evalu
 
 ## Current stage
 
-**Stage: Strategic alignment / assurance contract**
+**Stage: v0.1 assurance contract / evaluator implementation**
 
-Implementation is intentionally not yet claimed. The next target is a small, testable repository-assurance vertical slice.
+The v0.1 contract is recorded in [`docs/ASSURANCE_CONTRACT_V0.1.md`](docs/ASSURANCE_CONTRACT_V0.1.md). The next target is a small, deterministic repository-assurance evaluator.
 
 ## Repository structure
 
@@ -37,7 +37,8 @@ PRS/
 │   ├── PRODUCT_POSITION.md
 │   ├── AGENTOS_INTEGRATION.md
 │   ├── ROADMAP.md
-│   └── STATUS.md
+│   ├── STATUS.md
+│   └── ASSURANCE_CONTRACT_V0.1.md
 └── .github/
     └── workflows/
         └── validate.yml
