@@ -22,4 +22,6 @@ jobs:
           test -s docs/PRODUCT_POSITION.md
           test -s docs/AGENTOS_INTEGRATION.md
           test -s docs/ROADMAP.md
+          test -s docs/ASSURANCE_CONTRACT_V0.1.md
+          test -s schemas/assurance-result-v0.1.json
           test -s .github/workflows/validate.yml
