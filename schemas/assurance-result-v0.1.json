@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/darrinbaldwindev/PRS/blob/main/schemas/assurance-result-v0.1.json",
+  "title": "PRS Assurance Result v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["snapshot", "evaluator_version", "checks", "findings", "disposition", "provenance"],
+  "properties": {
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "repository", "commit_sha", "captured_at"],
+      "properties": {
+        "project_id": {"type": "string", "minLength": 1},
+        "repository": {"type": "string", "minLength": 1},
+        "commit_sha": {"type": "string", "minLength": 1},
+        "captured_at": {"type": "string", "minLength": 1}
+      }
+    },
+    "evaluator_version": {"type": "string", "minLength": 1},
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["check_id", "status", "severity", "summary", "evidence"],
+        "properties": {
+          "check_id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["pass", "fail"]},
+          "severity": {"enum": ["info", "low", "medium", "high", "critical"]},
+          "summary": {"type": "string", "minLength": 1},
+          "evidence": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "check_id", "severity", "status", "summary", "evidence"],
+        "properties": {
+          "finding_id": {"type": "string", "minLength": 1},
+          "check_id": {"type": "string", "minLength": 1},
+          "severity": {"enum": ["info", "low", "medium", "high", "critical"]},
+          "status": {"enum": ["pass", "fail"]},
+          "summary": {"type": "string", "minLength": 1},
+          "evidence": {"type": "array", "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "disposition": {
+      "enum": ["verified", "partially_verified", "failed", "insufficient_evidence", "blocked"]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evaluator_version", "commit_sha", "check_outcomes", "evidence_references", "generated_at"],
+      "properties": {
+        "evaluator_version": {"type": "string", "minLength": 1},
+        "commit_sha": {"type": "string", "minLength": 1},
+        "check_outcomes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "evidence_references": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "generated_at": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
