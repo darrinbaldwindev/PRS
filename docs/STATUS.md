@@ -13,24 +13,25 @@
 - Assurance contract v0.1: DEFINED
 - Assurance contract repository record: COMPLETE
 - Machine-readable assurance schema: COMPLETE
-- Evaluator implementation: NOT YET STARTED
+- Evaluator implementation: IMPLEMENTED (deterministic, dependency-light)
+- Evaluator tests: IMPLEMENTED
 - Independent evaluator verification: PENDING
-- AgentOS runtime integration: DEFERRED until v0.1 evaluator is verified
+- AgentOS runtime integration: DEFERRED until v0.1 evaluator is independently verified
 
 ## Latest autonomous work
 
-1. Re-scanned the PRS repository and confirmed the strategic foundation and assurance contract are present.
-2. Added `schemas/assurance-result-v0.1.json` as the provider-neutral machine-readable result contract.
-3. Updated CI to require the assurance contract and schema in addition to the existing foundation documents.
-4. Corrected status to distinguish contract/schema completion from evaluator implementation; no implementation is being falsely claimed.
+1. Implemented `src/prs_evaluator.py` against the v0.1 contract using dependency-light deterministic logic.
+2. Added `tests/test_prs_evaluator.py` covering pass, missing foundation file, missing input rejection, repeatability and disposition mapping.
+3. Added `src/__init__.py` for the evaluator package.
+4. Did not claim v0.1 GREEN: implementation evidence exists, but independent verification is still required.
 
 ## v0.1 execution chain
 
 `Contract → Schema → Evaluator → Tests → Independent Verification → AgentOS Integration`
 
-## Current evaluator requirements
+## Current verification gate
 
-The evaluator must accept a defined project snapshot, run deterministic foundation/workflow/requirements checks, produce findings and a deterministic disposition, preserve evidence/provenance, reject missing required input, serialize machine-readable output, and remain network/provider independent.
+Independent verification must inspect the evaluator implementation and test behaviour, including deterministic results, input rejection, evidence/provenance, disposition mapping and dependency-light operation. Only after that gate passes should AgentOS runtime integration begin.
 
 ## Boundary
 
@@ -38,4 +39,4 @@ AgentOS remains responsible for execution, orchestration, permissions, schedulin
 
 ## Next autonomous action
 
-Implement the dependency-light evaluator and tests directly against the v0.1 contract. Do not add live AgentOS runtime integration until the evaluator passes independent verification.
+Perform independent verification of the evaluator and its tests. If verification fails, correct the implementation and repeat. If verification passes, record the evidence and advance the PRS v0.1 gate before any live AgentOS integration.
