@@ -1,6 +1,6 @@
 # PRS Overseer Status
 
-**Date:** 2026-09-01
+**Date:** 2026-09-02
 
 ## Gate status
 
@@ -20,18 +20,19 @@
 
 ## Latest autonomous work
 
-1. Implemented `src/prs_evaluator.py` against the v0.1 contract using dependency-light deterministic logic.
-2. Added `tests/test_prs_evaluator.py` covering pass, missing foundation file, missing input rejection, repeatability and disposition mapping.
-3. Added `src/__init__.py` for the evaluator package.
-4. Did not claim v0.1 GREEN: implementation evidence exists, but independent verification is still required.
+1. Re-scanned the repository and confirmed the v0.1 schema and strategic foundation.
+2. Implemented `src/prs/evaluator.py` against the v0.1 contract.
+3. Added `src/prs/__init__.py` and minimal `pyproject.toml` metadata.
+4. Added deterministic evaluator tests covering complete repositories, missing foundation evidence, missing validation workflow, invalid snapshot input, repeatability and missing roots.
+5. Preserved the rule that implementation is not equivalent to independent verification.
 
 ## v0.1 execution chain
 
 `Contract → Schema → Evaluator → Tests → Independent Verification → AgentOS Integration`
 
-## Current verification gate
+## Verification gate
 
-Independent verification must inspect the evaluator implementation and test behaviour, including deterministic results, input rejection, evidence/provenance, disposition mapping and dependency-light operation. Only after that gate passes should AgentOS runtime integration begin.
+The evaluator must be independently checked for contract conformance, deterministic behaviour, input rejection, evidence/provenance, disposition mapping, serialization compatibility and dependency-light operation. Only after that gate passes should live AgentOS integration begin.
 
 ## Boundary
 
@@ -39,4 +40,4 @@ AgentOS remains responsible for execution, orchestration, permissions, schedulin
 
 ## Next autonomous action
 
-Perform independent verification of the evaluator and its tests. If verification fails, correct the implementation and repeat. If verification passes, record the evidence and advance the PRS v0.1 gate before any live AgentOS integration.
+Perform independent verification of the evaluator and tests using repository evidence. If a defect is found, correct it and repeat verification. If verification passes, record the evidence and advance toward the first AgentOS integration contract.
