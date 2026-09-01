@@ -1,6 +1,6 @@
 # PRS Overseer Status
 
-**Date:** 2026-08-31
+**Date:** 2026-09-01
 
 ## Gate status
 
@@ -12,38 +12,30 @@
 - AgentOS/PRS responsibility boundary: DEFINED
 - Assurance contract v0.1: DEFINED
 - Assurance contract repository record: COMPLETE
-- Evaluator implementation: IN PROGRESS / NOT YET VERIFIED
+- Machine-readable assurance schema: COMPLETE
+- Evaluator implementation: NOT YET STARTED
 - Independent evaluator verification: PENDING
 - AgentOS runtime integration: DEFERRED until v0.1 evaluator is verified
 
-## Strategic decision
-
-PRS is the **Project Reliability & Assurance layer** within the AgentOS product family. It complements AgentOS rather than competing with it.
-
-**AgentOS does the work. PRS proves the work is being done correctly.**
-
 ## Latest autonomous work
 
-1. Logged the PRS state and completed alignment in the ChatGPT Overseer reporting chain on AgentOS issue #31.
-2. Defined the v0.1 assurance contract: project snapshot, deterministic checks, findings, dispositions, provenance and acceptance criteria.
-3. Committed `docs/ASSURANCE_CONTRACT_V0.1.md` as the canonical human-readable contract.
-4. Linked the contract from README.
-5. Maintained the guardrail that v0.1 requires no AgentOS runtime, provider credentials, scheduler, billing or autonomous remediation.
+1. Re-scanned the PRS repository and confirmed the strategic foundation and assurance contract are present.
+2. Added `schemas/assurance-result-v0.1.json` as the provider-neutral machine-readable result contract.
+3. Updated CI to require the assurance contract and schema in addition to the existing foundation documents.
+4. Corrected status to distinguish contract/schema completion from evaluator implementation; no implementation is being falsely claimed.
 
-## v0.1 checks
+## v0.1 execution chain
 
-- foundation files present;
-- validation workflow present;
-- requirements documented.
+`Contract → Schema → Evaluator → Tests → Independent Verification → AgentOS Integration`
 
-The evaluator must reject missing required input rather than guess, produce machine-readable output, preserve evidence/provenance, and yield deterministic dispositions.
+## Current evaluator requirements
 
-## Execution chain
+The evaluator must accept a defined project snapshot, run deterministic foundation/workflow/requirements checks, produce findings and a deterministic disposition, preserve evidence/provenance, reject missing required input, serialize machine-readable output, and remain network/provider independent.
 
-`Contract → Evaluator → Tests → Independent Verification → AgentOS Integration`
+## Boundary
+
+AgentOS remains responsible for execution, orchestration, permissions, scheduling, workers/providers and remediation authority. PRS remains the independent project assurance layer.
 
 ## Next autonomous action
 
-Implement the dependency-light evaluator against the v0.1 contract, add deterministic tests, inspect the resulting repository state, and only then advance toward AgentOS integration.
-
-No additional planning layer is required unless a real blocker or new requirement emerges.
+Implement the dependency-light evaluator and tests directly against the v0.1 contract. Do not add live AgentOS runtime integration until the evaluator passes independent verification.
