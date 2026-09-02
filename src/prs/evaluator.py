@@ -16,11 +16,6 @@ REQUIRED_FOUNDATION_FILES = (
     "docs/AGENTOS_INTEGRATION.md",
     "docs/ROADMAP.md",
 )
-REQUIRED_CHECKS = (
-    "foundation_files_present",
-    "validation_workflow_present",
-    "requirements_documented",
-)
 
 
 @dataclass(frozen=True)
@@ -37,13 +32,7 @@ class Snapshot:
 
 
 def _check(check_id: str, status: str, severity: str, summary: str, evidence: list[str]) -> dict[str, Any]:
-    return {
-        "check_id": check_id,
-        "status": status,
-        "severity": severity,
-        "summary": summary,
-        "evidence": evidence,
-    }
+    return {"check_id": check_id, "status": status, "severity": severity, "summary": summary, "evidence": evidence}
 
 
 def _present(root: Path, relative: str) -> bool:
@@ -57,70 +46,43 @@ def evaluate(root: str | Path, snapshot: Snapshot) -> dict[str, Any]:
     if not root_path.is_dir():
         raise ValueError("evaluation root must be an existing directory")
 
-    missing_foundation = [p for p in REQUIRED_FOUNDATION_FILES if not _present(root_path, p)]
-    foundation = _check(
+    checks: list[dict[str, Any]] = []
+    missing = [path for path in REQUIRED_FOUNDATION_FILES if not _present(root_path, path)]
+    checks.append(_check(
         "foundation_files_present",
-        "pass" if not missing_foundation else "fail",
-        "high" if missing_foundation else "info",
-        "All required foundation files are present and non-empty."
-        if not missing_foundation
-        else "Required foundation files are missing or empty.",
-        REQUIRED_FOUNDATION_FILES if not missing_foundation else missing_foundation,
-    )
+        "pass" if not missing else "fail",
+        "info" if not missing else "high",
+        "All required foundation files are present and non-empty." if not missing else "Required foundation files are missing or empty.",
+        list(REQUIRED_FOUNDATION_FILES if not missing else missing),
+    ))
 
-    workflow_path = ".github/workflows/validate.yml"
-    workflow = _check(
-        "validation_workflow_present",
-        "pass" if _present(root_path, workflow_path) else "fail",
-        "high" if not _present(root_path, workflow_path) else "info",
-        "Repository validation workflow is present and non-empty."
-        if _present(root_path, workflow_path)
-        else "Repository validation workflow is missing or empty.",
-        [workflow_path],
-    )
+    workflow = ".github/workflows/validate.yml"
+    workflow_ok = _present(root_path, workflow)
+    checks.append(_check(
+        "validation_workflow_present", "pass" if workflow_ok else "fail", "info" if workflow_ok else "high",
+        "Repository validation workflow is present and non-empty." if workflow_ok else "Repository validation workflow is missing or empty.",
+        [workflow],
+    ))
 
-    requirements_path = "docs/PROJECT.md"
-    requirements = _check(
-        "requirements_documented",
-        "pass" if _present(root_path, requirements_path) else "fail",
-        "high" if not _present(root_path, requirements_path) else "info",
-        "Project definition is present and non-empty."
-        if _present(root_path, requirements_path)
-        else "Project definition is missing or empty.",
-        [requirements_path],
-    )
+    requirements = "docs/PROJECT.md"
+    requirements_ok = _present(root_path, requirements)
+    checks.append(_check(
+        "requirements_documented", "pass" if requirements_ok else "fail", "info" if requirements_ok else "high",
+        "Project definition is present and non-empty." if requirements_ok else "Project definition is missing or empty.",
+        [requirements],
+    ))
 
-    checks = [foundation, workflow, requirements]
     failures = [c for c in checks if c["status"] == "fail"]
-    critical_or_high = [c for c in failures if c["severity"] in {"critical", "high"}]
-    if critical_or_high:
-        disposition = "failed"
-    elif failures:
-        disposition = "partially_verified"
-    elif not checks:
-        disposition = "insufficient_evidence"
-    else:
-        disposition = "verified"
-
+    disposition = "failed" if any(c["severity"] in {"critical", "high"} for c in failures) else "partially_verified" if failures else "verified"
     findings = [
-        {
-            "finding_id": f"finding-{check['check_id']}",
-            "check_id": check["check_id"],
-            "severity": check["severity"],
-            "status": check["status"],
-            "summary": check["summary"],
-            "evidence": check["evidence"],
-        }
-        for check in checks
+        {"finding_id": f"finding-{c['check_id']}", "check_id": c["check_id"], "severity": c["severity"],
+         "status": c["status"], "summary": c["summary"], "evidence": c["evidence"]}
+        for c in checks
     ]
-
+    evidence = sorted({item for check in checks for item in check["evidence"]})
+    outcomes = [f"{c['check_id']}:{c['status']}" for c in checks]
     return {
-        "snapshot": {
-            "project_id": snapshot.project_id,
-            "repository": snapshot.repository,
-            "commit_sha": snapshot.commit_sha,
-            "captured_at": snapshot.captured_at,
-        },
+        "snapshot": snapshot.__dict__.copy(),
         "evaluator_version": VERSION,
         "checks": checks,
         "findings": findings,
@@ -128,8 +90,8 @@ def evaluate(root: str | Path, snapshot: Snapshot) -> dict[str, Any]:
         "provenance": {
             "evaluator_version": VERSION,
             "commit_sha": snapshot.commit_sha,
-            "check_outcomes": [f"{c['check_id']}:{c['status']}" for c in checks],
-            "evidence_references": sorted({e for c in checks for e in c["evidence"]}),
+            "check_outcomes": outcomes,
+            "evidence_references": evidence,
             "generated_at": snapshot.captured_at,
         },
     }
