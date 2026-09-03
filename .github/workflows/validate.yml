@@ -34,3 +34,30 @@ jobs:
           test -s .github/workflows/validate.yml
       - name: Run evaluator tests
         run: python -m pytest -q
+      - name: Write validation evidence
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/github-actions-validation.json <<EOF
+          {
+            "schema": "prs.github-actions-validation.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "commit_sha": "${GITHUB_SHA}",
+            "ref": "${GITHUB_REF}",
+            "event": "${GITHUB_EVENT_NAME}",
+            "runner": "${RUNNER_OS}",
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "note": "Workflow execution evidence only; this does not constitute independent buyer validation or production readiness."
+          }
+          EOF
+      - name: Upload validation evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-validation-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/github-actions-validation.json
+          if-no-files-found: error
