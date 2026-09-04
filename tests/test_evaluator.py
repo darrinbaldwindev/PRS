@@ -65,3 +65,18 @@ def test_evidence_references_are_sorted_and_unique(tmp_path: Path) -> None:
     result = evaluate(make_repo(tmp_path), snapshot())
     evidence = result["provenance"]["evidence_references"]
     assert evidence == sorted(set(evidence))
+
+
+def test_missing_required_assurance_evidence_cannot_be_green(tmp_path: Path) -> None:
+    root = make_repo(tmp_path)
+    (root / "docs/PROJECT.md").unlink()
+    result = evaluate(root, snapshot())
+
+    assert result["checks"][0]["check_id"] == "foundation_files_present"
+    assert result["checks"][0]["status"] == "fail"
+    assert result["checks"][0]["severity"] == "high"
+    assert result["disposition"] != "verified"
+    assert result["disposition"] == "failed"
+    assert "docs/PROJECT.md" in result["checks"][0]["evidence"]
+    assert result["findings"][0]["status"] == "fail"
+    assert result["provenance"]["check_outcomes"][0] == "foundation_files_present:fail"
