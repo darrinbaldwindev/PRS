@@ -66,3 +66,38 @@ Local validation before adding the existing PR #16 fixture: 88 tests passed.
 
 Final combined local suite, retaining PR #16's exact existing negative fixture:
 89 tests passed. Additive draft update only; no change to PR #15.
+
+## Read-only runtime snapshot challenge
+
+Added `prs.remote_snapshot`, which reads the existing AgentOS state once and
+resolves artifacts by exact ID and type. It rejects ambiguous JSON and does not
+fill missing Green fields from the receipt, treat literal evidence strings as
+resolved artifacts, or infer an execution census from completion events.
+It creates no scheduler, persistence store, ledger or recovery action.
+
+The captured Linux DRY_RUN fixture is preserved under
+`tests/fixtures/remote-runtime/`; its machine-readable assessment is
+`docs/evidence/remote-snapshot-challenge-2026-09-09.json`. Hashes bind the saved
+state and assignment. Expected identities come from the pre-execution admitted
+fixture, host identity, known registry worker, git HEAD and configuration hash;
+the allocated wake ID comes from the saved dispatch task, not the receipt.
+These are local fixture sources, not authenticated remote attestations.
+
+The scheduler reports COMPLETED and persists a result/receipt. PRS returns failed
+on eight exact checks: Green mission/wake/worker/code correlation, resolved
+completion evidence, single correlated execution, fresh evidence provenance,
+and task-specific capability health. Seven literal evidence references do not
+resolve to independent saved evidence. The regression reproduces these failures
+from the captured bytes without executing AgentOS or changing its state.
+
+Tested runtime: local commit `be2135ba8e0f28d72b2c22cdb7e1e25fe4fab2a6`,
+tree `c4418b517c95a23bf76df1cfa1f28cfe82f52848`, matching published AgentOS
+head `ea2e0d88cc178786f2c94e99c20020d8a6fab079` by tree. This capture replaces
+an earlier scratch-only observation whose raw state was not retained.
+Current PR #91 has advanced to `5cc27c96d48e18419cc678fd03b37c9e1c7ccd70`.
+The intervening diff adds only the upstream reconciliation helper and its tests;
+that helper is preserved and is not executed by this baseline capture.
+Do not describe this as exact-current-head or independent full-bridge assurance.
+
+Local combined suite: 102 tests passed. Physical Windows execution remains
+NOT PROVEN. No overall GREEN, runtime integration or production promotion.

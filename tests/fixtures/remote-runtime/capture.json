@@ -1,0 +1,8 @@
+{
+  "observed_at": "2026-09-09T22:23:06.597Z",
+  "scheduler_claim": "COMPLETED",
+  "local_code_head": "be2135ba8e0f28d72b2c22cdb7e1e25fe4fab2a6",
+  "source_tree": "c4418b517c95a23bf76df1cfa1f28cfe82f52848",
+  "agentos_remote_head": "ea2e0d88cc178786f2c94e99c20020d8a6fab079",
+  "boundary": "Recaptured Linux local fixture; no remote transport; no physical Windows acceptance"
+}
