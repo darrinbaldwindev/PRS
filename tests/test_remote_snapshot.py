@@ -111,10 +111,15 @@ def test_captured_runtime_completion_is_not_independent_verification():
     assert hashlib.sha256(before).hexdigest() == saved["snapshot_reader"]["state_sha256"]
     assert hashlib.sha256((directory / "assignment.json").read_bytes()).hexdigest() == saved["observation"]["assignment_sha256"]
     assert result["disposition"] == "failed"
-    assert {check["check_id"] for check in result["checks"] if check["status"] == "fail"} == {
-        "green_mission_id", "green_wake_trace_id", "green_worker_id", "green_code_identity",
-        "resolved_completion_evidence", "single_correlated_execution",
-        "fresh_correlated_provenance", "task_capability_health",
-    }
-    assert result["checks"] == saved["checks"]
+
+    # The committed JSON is a historical assessment produced by evaluator 0.2.
+    # Later fail-closed evaluator revisions may add failures for the same immutable
+    # capture; they must never erase a failure that the original assessment found.
+    historical_failures = {check["check_id"] for check in saved["checks"] if check["status"] == "fail"}
+    current_failures = {check["check_id"] for check in result["checks"] if check["status"] == "fail"}
+    assert historical_failures <= current_failures
+    assert {
+        "green_project_id",
+        "durable_result",
+    } <= current_failures
     assert state.read_bytes() == before
