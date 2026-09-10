@@ -1,0 +1,135 @@
+{
+  "schema": "prs.offline-adversarial-probe.v1",
+  "exact_head": "0a3a6d1b073e84789cf3010a5dd317bfef12b145",
+  "source_tree": "832a0b98326c83c15281feca8ae6971c828b6ed1",
+  "module": "src/governance/autonomy.mjs",
+  "captured_at": "2026-09-09T23:03:59.115Z",
+  "suite": "autonomy",
+  "cases": [
+    {
+      "id": "authorised:\"false\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "authorised:1",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "authorised:{}",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "authorised:[]",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "capabilityGranted:\"false\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "capabilityGranted:1",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "capabilityGranted:{}",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "capabilityGranted:[]",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "inScope:\"false\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "inScope:1",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "inScope:{}",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "inScope:[]",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "withinBudget:\"false\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "withinBudget:1",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "withinBudget:{}",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "withinBudget:[]",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "production:null",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "production:0",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "production:\"\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "production:\"false\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    }
+  ],
+  "assurance_certified": false,
+  "production_promotion_allowed": false,
+  "module_sha256": "f42b49eb54e49d432b29a81b696d58f461d0d11e6fe95098ad768832d87985cb",
+  "positive_control": true,
+  "status": "NEGATIVE_CASES_PASS"
+}
