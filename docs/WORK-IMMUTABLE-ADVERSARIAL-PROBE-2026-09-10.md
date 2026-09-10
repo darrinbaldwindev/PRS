@@ -36,3 +36,7 @@ Publication continuation: based on current PR #16 head cc453d163b7efce901e7a2ebf
 Combined current-base local validation: 115 Python tests passed. The additional
 Node probes retain their separate 12-case / 20-case execution evidence; those
 counts must not be represented as extra Python CI tests.
+
+The existing validation workflow now runs on every pull-request base. Previously
+its main-only base filter silently skipped stacked assurance PR #17. Test steps
+and evidence upload remain intact; no production permission is added.
