@@ -65,19 +65,19 @@ function run(id, input, expectedState, expectedReason = null) {
   }
 }
 
-run('historical-completion-alone-not-idle', { artifacts: [receipt()] }, 'offline_or_stale', 'NO_CURRENT_HOST_OBSERVATION');
+run('historical-completion-alone-not-idle', { artifacts: [receipt()] }, 'offline_or_stale', 'NO_CURRENT_DURABLE_EVIDENCE');
 run('fresh-host-observation-allows-idle', { artifacts: [receipt(), hostObservation()] }, 'idle');
 run('unrelated-other-host-history-does-not-poison', { artifacts: [hostObservation(), receipt({ host_id: 'host-b', task_id: 'other' })] }, 'idle');
 run('blocked-pickup-outranks-idle', { artifacts: [hostObservation(), task({ pickup_state: 'BLOCKED', pickup_blocker: 'CAPABILITY_MATCH_FAILED' })] }, 'blocked', 'CAPABILITY_MATCH_FAILED');
 run('retained-lock-requires-recovery', { artifacts: [hostObservation()], locks: [{ retained: true, reason: 'LOCAL_STATE_LOCK_RECOVERY_REQUIRED' }] }, 'recovery_required', 'LOCAL_STATE_LOCK_RECOVERY_REQUIRED');
 run('stale-host-observation-not-current', { artifacts: [{ ...hostObservation(), updatedAt: old, payload: { host_id: 'host-a', observed_at: old } }], staleAfterMs: 5 * 60 * 1000 }, 'offline_or_stale');
-run('queued-task-with-correlated-claim-is-working', { artifacts: [hostObservation(), task()], claims: [claim()] }, 'working', 'CORRELATED_DURABLE_CLAIM');
+run('queued-task-with-correlated-claim-is-working', { artifacts: [hostObservation(), task()], claims: [claim()] }, 'working', 'CORRELATED_IN_FLIGHT_TASK');
 run('queued-task-without-claim-is-not-working', { artifacts: [hostObservation(), task()] }, 'idle');
 run('claim-host-mismatch-fails-closed', { artifacts: [hostObservation(), task()], claims: [claim({ host_id: 'host-b' })] }, 'blocked', 'CLAIM_CORRELATION_CONFLICT');
 run('incomplete-correlated-claim-fails-closed', { artifacts: [hostObservation(), task({ wake_trace_id: null })], claims: [claim()] }, 'blocked', 'ACTIVE_TASK_CORRELATION_INCOMPLETE');
 
 const blockers = [
-  task({ task_id: 'old', mission_id: 'm-old', wake_trace_id: 'w-old', pickup_state: 'BLOCKED', pickup_blocker: 'OLD', updated_at: old }),
+  { ...task({ task_id: 'old', mission_id: 'm-old', wake_trace_id: 'w-old', pickup_state: 'BLOCKED', pickup_blocker: 'OLD', updated_at: old }), id: 'task-old', updatedAt: old },
   { ...task({ task_id: 'new', mission_id: 'm-new', wake_trace_id: 'w-new', pickup_state: 'BLOCKED', pickup_blocker: 'NEW' }), id: 'task-new', updatedAt: fresh },
 ];
 run('newest-blocker-selected', { artifacts: [hostObservation(), ...blockers] }, 'blocked', 'NEW');
