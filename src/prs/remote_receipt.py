@@ -40,7 +40,7 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
         check("completed_status", receipt.get("status") == "COMPLETED", "receipt:status")
         check("budget_reconciled", receipt.get("budget_status") == "RECONCILED", "receipt:budget_status")
         check("green_pass", green.get("disposition") == "pass", "green:disposition")
-        for field in ("task_id", "mission_id", "wake_trace_id", "worker_id", "code_identity"):
+        for field in ("project_id", "task_id", "mission_id", "wake_trace_id", "worker_id", "code_identity"):
             check(f"green_{field}", text(expected.get(field)) and green.get(field) == expected.get(field),
                   f"green:{field}")
         refs = receipt.get("evidence")
@@ -57,6 +57,7 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
                 return None
 
         now = timestamp(observed_at)
+
         def fresh(value):
             captured = timestamp(value)
             return (now is not None and captured is not None and
@@ -66,8 +67,9 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
         check("exact_code_identity", bool(re.fullmatch(r"[0-9a-f]{40}", str(expected.get("code_identity", "")))) and
               receipt.get("code_dirty") is False, "assignment:exact_head_and_clean_code")
         result_ok = isinstance(persisted_result, Mapping) and persisted_result.get("status") == "COMPLETED"
-        check("durable_result", result_ok and all(persisted_result.get(f) == expected.get(f)
-              for f in ("mission_id", "wake_trace_id")), "persisted:final_result")
+        check("durable_result", result_ok and all(
+              text(expected.get(field)) and persisted_result.get(field) == expected.get(field)
+              for field in IDENTITY_FIELDS), "persisted:final_result")
         records_ok = isinstance(execution_records, list) and len(execution_records) == 1
         check("single_correlated_execution", records_ok and isinstance(execution_records[0], Mapping) and
               all(execution_records[0].get(f) == expected.get(f) for f in IDENTITY_FIELDS), "persisted:execution_records")
@@ -91,7 +93,7 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
         "disposition": "failed" if failed else "verified",
         "checks": checks,
         "findings": [dict(c, finding_id=f"bridge-{c['check_id']}") for c in checks if c["status"] == "fail"],
-        "provenance": {"evaluator_version": "offline-bridge-0.2", "observed_at": observed_at,
+        "provenance": {"evaluator_version": "offline-bridge-0.3", "observed_at": observed_at,
                        "check_outcomes": [f"{c['check_id']}:{c['status']}" for c in checks],
                        "evidence_references": sorted({r for c in checks for r in c["evidence"]})},
         "production_promotion_allowed": False,
