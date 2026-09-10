@@ -33,6 +33,15 @@ jobs:
           test -s .github/workflows/validate.yml
       - name: Run evaluator tests
         run: python -m pytest -q
+      - name: Check out exact AgentOS host-status target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: d35aae7180857a88583b7786121cfc4e1cddf8c4
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable AgentOS host-status adversarial probe
+        run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS d35aae7180857a88583b7786121cfc4e1cddf8c4
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -49,8 +58,9 @@ jobs:
             "ref": "${GITHUB_REF}",
             "event": "${GITHUB_EVENT_NAME}",
             "runner": "${RUNNER_OS}",
+            "agentos_host_status_target": "d35aae7180857a88583b7786121cfc4e1cddf8c4",
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "note": "Workflow execution evidence only; this does not constitute independent buyer validation or production readiness."
+            "note": "Workflow execution evidence only; this does not constitute independent production readiness or physical Windows acceptance."
           }
           EOF
       - name: Upload validation evidence
