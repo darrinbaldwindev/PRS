@@ -60,7 +60,7 @@ def test_result_write_failure_cannot_be_verified():
     assert_failed(data, "durable_receipt")
 
 
-@pytest.mark.parametrize("field", ["task_id", "mission_id", "wake_trace_id", "worker_id", "code_identity"])
+@pytest.mark.parametrize("field", ["project_id", "task_id", "mission_id", "wake_trace_id", "worker_id", "code_identity"])
 def test_borrowed_green_pass_fails(field):
     data = packet()
     del data["green"][field]
@@ -89,6 +89,13 @@ def test_missing_independent_snapshot_fails(field, check_id):
 def test_completion_authorization_alone_is_not_a_result():
     data = packet()
     data["persisted_result"] = {"actions": ["COMPLETION_AUTHORIZED"], "outcome": "green_verified"}
+    assert_failed(data, "durable_result")
+
+
+@pytest.mark.parametrize("field", IDENTITY_FIELDS)
+def test_borrowed_or_mismatched_final_result_fails(field):
+    data = packet()
+    data["persisted_result"][field] = "other-execution"
     assert_failed(data, "durable_result")
 
 
