@@ -33,8 +33,21 @@ def test_correlated_fixture_is_consistent_and_deterministic():
     data = packet()
     result = evaluate_remote_receipt(**data)
     assert result == evaluate_remote_receipt(**data)
-    assert result["disposition"] == "verified"
+    assert result["disposition"] == "consistent"
+    assert result["assurance_claim"] == "supplied_snapshot_internal_consistency_only"
+    assert result["execution_authenticity_verified"] is False
+    assert result["execution_census_completeness_verified"] is False
     assert result["runtime_integration_enabled"] is False
+    assert result["production_promotion_allowed"] is False
+
+
+def test_perfectly_coherent_packet_never_claims_authenticity_or_complete_census():
+    result = evaluate_remote_receipt(**packet())
+    assert all(check["status"] == "pass" for check in result["checks"])
+    assert result["disposition"] == "consistent"
+    assert result["execution_authenticity_verified"] is False
+    assert result["execution_census_completeness_verified"] is False
+    assert result["production_promotion_allowed"] is False
 
 
 @pytest.mark.parametrize("field", IDENTITY_FIELDS)
@@ -104,6 +117,12 @@ def test_duplicate_or_absent_execution_fails(count):
     data = packet()
     data["execution_records"] *= count
     assert_failed(data, "single_correlated_execution")
+
+
+def test_single_supplied_execution_record_does_not_claim_census_completeness():
+    result = evaluate_remote_receipt(**packet())
+    assert next(check for check in result["checks"] if check["check_id"] == "single_correlated_execution")["status"] == "pass"
+    assert result["execution_census_completeness_verified"] is False
 
 
 @pytest.mark.parametrize("stamp", [None, "invalid", "2020-01-01T00:00:00Z", "2026-09-09T11:00:00Z", "2026-09-09T10:00:00"])
