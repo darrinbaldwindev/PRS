@@ -33,7 +33,10 @@ def test_reader_is_read_only_and_resolves_by_type_and_id(tmp_path):
     _, path, args = snapshot(tmp_path)
     before = path.read_bytes()
     result = assess_remote_snapshot(**args)
-    assert result["disposition"] == "verified"  # synthetic snapshot consistency only
+    assert result["disposition"] == "consistent"
+    assert result["assurance_claim"] == "supplied_snapshot_internal_consistency_only"
+    assert result["execution_authenticity_verified"] is False
+    assert result["execution_census_completeness_verified"] is False
     assert path.read_bytes() == before
     assert result["snapshot_reader"]["state_sha256"]
     assert result["runtime_integration_enabled"] is False
@@ -67,6 +70,7 @@ def test_completed_events_are_not_an_execution_census(tmp_path):
     args["execution_records"] = None
     result = assess_remote_snapshot(**args)
     assert "single_correlated_execution:fail" in result["provenance"]["check_outcomes"]
+    assert result["execution_census_completeness_verified"] is False
 
 
 @pytest.mark.parametrize("raw", ['{"schemaVersion":1,"schemaVersion":1}', '{"schemaVersion":NaN}', '{broken'])
@@ -111,6 +115,8 @@ def test_captured_runtime_completion_is_not_independent_verification():
     assert hashlib.sha256(before).hexdigest() == saved["snapshot_reader"]["state_sha256"]
     assert hashlib.sha256((directory / "assignment.json").read_bytes()).hexdigest() == saved["observation"]["assignment_sha256"]
     assert result["disposition"] == "failed"
+    assert result["execution_authenticity_verified"] is False
+    assert result["execution_census_completeness_verified"] is False
 
     # The committed JSON is a historical assessment produced by evaluator 0.2.
     # Later fail-closed evaluator revisions may add failures for the same immutable
