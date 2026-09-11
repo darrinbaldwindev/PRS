@@ -37,11 +37,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: d35aae7180857a88583b7786121cfc4e1cddf8c4
+          ref: c7b0821bfd6c4abce4a91df3f0d6952420f9bc78
           path: validation-target/AgentOS
           persist-credentials: false
       - name: Run immutable AgentOS host-status adversarial probe
-        run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS d35aae7180857a88583b7786121cfc4e1cddf8c4
+        run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS c7b0821bfd6c4abce4a91df3f0d6952420f9bc78
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -58,7 +58,7 @@ jobs:
             "ref": "${GITHUB_REF}",
             "event": "${GITHUB_EVENT_NAME}",
             "runner": "${RUNNER_OS}",
-            "agentos_host_status_target": "d35aae7180857a88583b7786121cfc4e1cddf8c4",
+            "agentos_host_status_target": "c7b0821bfd6c4abce4a91df3f0d6952420f9bc78",
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "note": "Workflow execution evidence only; this does not constitute independent production readiness or physical Windows acceptance."
           }
