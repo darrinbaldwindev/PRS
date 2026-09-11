@@ -1,9 +1,10 @@
 """Offline bridge evidence challenge; no runtime integration or execution authority.
 
 The caller must independently load expected assignment and persisted evidence.
-Never build these from the receipt being evaluated. A verified result certifies
-only consistency of this supplied snapshot, not transport authenticity or Windows
-acceptance. This evaluator is intentionally not wired into AgentOS.
+Never build these from the receipt being evaluated. A consistent result certifies
+only internal consistency of this supplied snapshot, not transport authenticity,
+execution authenticity, census completeness, or Windows acceptance. This evaluator
+is intentionally not wired into AgentOS.
 """
 from collections.abc import Mapping
 from datetime import datetime
@@ -90,10 +91,13 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
     failed = any(c["status"] == "fail" for c in checks)
     return {
         "scope": "offline_bridge_snapshot_consistency",
-        "disposition": "failed" if failed else "verified",
+        "disposition": "failed" if failed else "consistent",
+        "assurance_claim": "supplied_snapshot_internal_consistency_only",
+        "execution_authenticity_verified": False,
+        "execution_census_completeness_verified": False,
         "checks": checks,
         "findings": [dict(c, finding_id=f"bridge-{c['check_id']}") for c in checks if c["status"] == "fail"],
-        "provenance": {"evaluator_version": "offline-bridge-0.3", "observed_at": observed_at,
+        "provenance": {"evaluator_version": "offline-bridge-0.4", "observed_at": observed_at,
                        "check_outcomes": [f"{c['check_id']}:{c['status']}" for c in checks],
                        "evidence_references": sorted({r for c in checks for r in c["evidence"]})},
         "production_promotion_allowed": False,
