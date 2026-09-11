@@ -3,7 +3,9 @@
 // Execution-produced evidence only; this is not independent PRS certification by itself.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const [repoArg, ref] = process.argv.slice(2);
 if (!repoArg || !/^[a-f0-9]{40}$/.test(ref ?? '')) {
@@ -15,7 +17,10 @@ if (git('rev-parse', `${ref}^{commit}`) !== ref) throw new Error('exact commit r
 
 const path = 'runtime/local-host-status.mjs';
 const source = execFileSync('git', ['-C', repo, 'show', `${ref}:${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-const module = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+const checkedOutPath = resolve(repo, path);
+const checkedOutSource = readFileSync(checkedOutPath, 'utf8');
+if (checkedOutSource !== source) throw new Error('checked-out module does not match exact Git object');
+const module = await import(`${pathToFileURL(checkedOutPath).href}?exact=${ref}`);
 const observedAt = '2026-09-10T04:00:00.000Z';
 const fresh = '2026-09-10T03:59:30.000Z';
 const old = '2026-09-10T03:00:00.000Z';
