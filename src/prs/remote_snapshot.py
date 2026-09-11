@@ -106,7 +106,7 @@ def main():
     expected, _ = read_json(args.assignment)
     result = assess_remote_snapshot(state_path=args.state, expected=expected, observed_at=args.observed_at)
     print(json.dumps(result, indent=2, sort_keys=True))
-    return 0 if result["disposition"] == "verified" else 1
+    return 0 if result["disposition"] == "consistent" else 1
 
 
 if __name__ == "__main__":
