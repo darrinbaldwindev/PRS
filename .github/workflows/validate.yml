@@ -17,8 +17,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install test runner
-        run: python -m pip install pytest
+      - name: Install package and test runner
+        run: python -m pip install -e . pytest
+      - name: Validate package version provenance
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          import prs
+
+          installed = version("prs-assurance")
+          assert installed == prs.__version__, (installed, prs.__version__)
+          print(f"prs-assurance version {installed}")
+          PY
       - name: Validate required foundation files
         shell: bash
         run: |
