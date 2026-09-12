@@ -46,19 +46,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: c4498c32f2f122635afdf609a228e5a00ccc55a5
+          ref: 1f9faf7948ea017483af3d76ff10427bf9a06ff1
           path: validation-target/AgentOS-level2
           persist-credentials: false
       - name: Run immutable AgentOS Level-2 project-file adversarial probe
-        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Run immutable AgentOS project-file boundary probe
-        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Run immutable AgentOS recovery-governance probe
-        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Run immutable AgentOS recovery-state adversarial probe
-        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Run immutable AgentOS PowerShell adversarial probe
-        run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Check out exact GemVerse Level-2 fixture target
         uses: actions/checkout@v4
         with:
@@ -67,7 +67,7 @@ jobs:
           path: validation-target/GemVerse
           persist-credentials: false
       - name: Run AgentOS against exact GemVerse Level-2 fixture
-        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -85,7 +85,7 @@ jobs:
             "event": "${GITHUB_EVENT_NAME}",
             "runner": "${RUNNER_OS}",
             "agentos_host_status_target": "d91abaecf602d7ef223c4888f10fa9361677302e",
-            "agentos_level2_target": "c4498c32f2f122635afdf609a228e5a00ccc55a5",
+            "agentos_level2_target": "1f9faf7948ea017483af3d76ff10427bf9a06ff1",
             "gemverse_level2_fixture_target": "b50973474fad510c650507cc978ba2466c09f0a6",
             "level2_probes": ["project-file", "project-file-boundaries", "recovery-governance", "project-file-recovery-state", "powershell", "gemverse-level2-fixture"],
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
@@ -109,7 +109,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: c4498c32f2f122635afdf609a228e5a00ccc55a5
+          ref: 1f9faf7948ea017483af3d76ff10427bf9a06ff1
           path: validation-target/AgentOS-level2
           persist-credentials: false
       - name: Check out exact GemVerse Level-2 fixture target
@@ -129,16 +129,16 @@ jobs:
           powershell.exe -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
       - name: Run exact AgentOS writer against GemVerse fixture on hosted Windows
         shell: pwsh
-        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
       - name: Run hosted Windows filesystem adversarial probe
         shell: pwsh
-        run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Run hosted Windows process adversarial probe
         shell: pwsh
-        run: node scripts/challenge-agentos-windows-process-boundaries.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-windows-process-boundaries.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Run hosted Windows executable provenance probe
         shell: pwsh
-        run: node scripts/challenge-agentos-windows-executable-provenance.mjs validation-target/AgentOS-level2 c4498c32f2f122635afdf609a228e5a00ccc55a5
+        run: node scripts/challenge-agentos-windows-executable-provenance.mjs validation-target/AgentOS-level2 1f9faf7948ea017483af3d76ff10427bf9a06ff1
       - name: Write hosted Windows evidence
         if: ${{ always() }}
         shell: pwsh
@@ -152,7 +152,7 @@ jobs:
             commit_sha = $env:GITHUB_SHA
             ref = $env:GITHUB_REF
             runner_os = $env:RUNNER_OS
-            agentos_level2_target = 'c4498c32f2f122635afdf609a228e5a00ccc55a5'
+            agentos_level2_target = '1f9faf7948ea017483af3d76ff10427bf9a06ff1'
             gemverse_level2_fixture_target = 'b50973474fad510c650507cc978ba2466c09f0a6'
             hosted_windows_runner_exercised = $true
             owner_windows_laptop_exercised = $false
