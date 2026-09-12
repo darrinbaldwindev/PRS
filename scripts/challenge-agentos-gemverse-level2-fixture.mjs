@@ -1,8 +1,8 @@
 // Cross-repo software acceptance probe for the bounded GemVerse Level-2 fixture.
 // Mutates only an ephemeral GitHub Actions checkout; no production repository write.
 // This proves the exact AgentOS project-file writer can satisfy the fixture contract
-// at the software primitive level. It does NOT prove scheduler/local-wake pickup,
-// physical Windows/NTFS behavior, or overall AgentOS Level 2 completion.
+// at the software primitive level. On a hosted Windows runner it also exercises
+// Windows filesystem semantics, but it never claims owner-laptop acceptance.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -95,7 +95,7 @@ function currentDiffEvidence() {
   return {
     statusLines,
     diff,
-    onlyFixtureChanged: statusLines.length === 1 && statusLines[0].endsWith(fixtureRel),
+    onlyFixtureChanged: statusLines.length === 1 && statusLines[0].replaceAll('\\', '/').endsWith(fixtureRel),
     exactDiff: expectedRemoved.every((line) => changedBodyLines.includes(line)) && expectedAdded.every((line) => changedBodyLines.includes(line)) && changedBodyLines.length === 4,
   };
 }
@@ -110,7 +110,6 @@ async function runCase(id, fn) {
   }
 }
 
-// Case 1: exact bounded mutation + deterministic replay.
 await runCase('bounded-mutation-and-replay', async () => {
   await resetFixture();
   const persistence = persistenceHarness();
@@ -148,7 +147,6 @@ await runCase('bounded-mutation-and-replay', async () => {
   };
 });
 
-// Case 2: injected interruption before publish, then explicit governed RESUME.
 await runCase('interruption-recovery-and-replay', async () => {
   await resetFixture();
   const persistence = persistenceHarness();
@@ -214,8 +212,6 @@ await runCase('interruption-recovery-and-replay', async () => {
   };
 });
 
-// Case 3: two writers contend for the same fixture. The second must not publish
-// while the first owns the canonical per-target lock; unsafe last-writer-wins is forbidden.
 await runCase('concurrent-writers-conflict-without-last-writer-wins', async () => {
   await resetFixture();
   const persistence = persistenceHarness();
@@ -274,7 +270,7 @@ await runCase('concurrent-writers-conflict-without-last-writer-wins', async () =
 
 const finalContent = await fs.readFile(targetPath, 'utf8');
 const evidence = {
-  schema: 'prs.agentos-gemverse-level2-fixture-probe.v2',
+  schema: 'prs.agentos-gemverse-level2-fixture-probe.v3',
   agentos_exact_head: agentRef,
   agentos_source_tree: git(agentRepo, 'rev-parse', `${agentRef}^{tree}`),
   agentos_writer_sha256: sha256(exactWriterSource),
@@ -286,14 +282,18 @@ const evidence = {
   expected_postimage_sha256: expectedPostimageSha256,
   observed_final_postimage_sha256: sha256(Buffer.from(finalContent)),
   cases,
-  physical_windows_exercised: false,
+  platform: process.platform,
+  hosted_windows_runner_exercised: process.platform === 'win32',
+  owner_windows_laptop_exercised: false,
   scheduler_or_local_wake_exercised: false,
   production_repository_mutated: false,
   assurance_certified: false,
   production_promotion_allowed: false,
 };
 evidence.pass = cases.length === 3 && cases.every((item) => item.pass === true) && finalContent === expectedTarget;
-evidence.status = evidence.pass ? 'SOFTWARE_FIXTURE_RECOVERY_CONCURRENCY_PASS' : 'SOFTWARE_FIXTURE_FAIL';
+evidence.status = evidence.pass
+  ? (process.platform === 'win32' ? 'HOSTED_WINDOWS_FIXTURE_RECOVERY_CONCURRENCY_PASS' : 'SOFTWARE_FIXTURE_RECOVERY_CONCURRENCY_PASS')
+  : 'SOFTWARE_FIXTURE_FAIL';
 
 console.log(JSON.stringify(evidence, null, 2));
 process.exitCode = evidence.pass ? 0 : 1;
