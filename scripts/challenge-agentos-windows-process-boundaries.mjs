@@ -26,6 +26,30 @@ async function waitForFile(file, timeoutMs = 10_000) {
   throw new Error(`TIMEOUT_WAITING_FOR_FILE:${file}`);
 }
 
+async function waitForProcessExit(pid, timeoutMs = 5_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!processAlive(pid)) return true;
+    await sleep(100);
+  }
+  return !processAlive(pid);
+}
+
+async function removeTreeEventually(dir, timeoutMs = 5_000) {
+  const deadline = Date.now() + timeoutMs;
+  let lastCode = null;
+  while (Date.now() < deadline) {
+    try {
+      await fs.rm(dir, { recursive: true, force: true });
+      return { removed: true, last_error_code: null };
+    } catch (error) {
+      lastCode = error.code ?? error.message;
+      await sleep(150);
+    }
+  }
+  return { removed: false, last_error_code: lastCode };
+}
+
 function persistenceHarness() {
   const artifacts = new Map();
   return { artifacts, api: {
@@ -54,7 +78,6 @@ async function loadExactModule(repo, ref, modulePath, query) {
   return { module, exactSource, exactBytes, eolTranslationOnly, checkedOutPath };
 }
 
-// Child role used for genuine separate-process contention.
 if (process.argv[2] === '--writer-child') {
   const [repoArg, ref, approvedRoot, target, readyFile, releaseFile] = process.argv.slice(3);
   const repo = resolve(repoArg);
@@ -164,42 +187,47 @@ await runCase('separate-process-same-target-contention-never-takes-over-live-own
     if (holder && processAlive(holder.pid)) {
       try { execFileSync('taskkill.exe', ['/PID', String(holder.pid), '/T', '/F'], { stdio: 'ignore' }); } catch {}
     }
-    await fs.rm(base, { recursive: true, force: true });
+    await removeTreeEventually(base);
   }
 });
 
 await runCase('powershell-timeout-terminates-descendant-process-tree', async () => {
   const base = await fs.mkdtemp(path.join(tmpdir(), 'prs-win-powershell-tree-'));
   const pidFile = path.join(base, 'descendant.pid');
-  try {
-    const spawner = `import { spawn } from 'node:child_process';\nimport { writeFileSync } from 'node:fs';\nconst child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 300000)'], { detached: true, stdio: 'ignore', windowsHide: true });\nwriteFileSync(${JSON.stringify(pidFile)}, String(child.pid));\nchild.unref();\nsetTimeout(() => {}, 300000);\n`;
-    await fs.writeFile(path.join(base, 'spawn-descendant.mjs'), spawner, 'utf8');
-    await fs.writeFile(path.join(base, 'package.json'), JSON.stringify({ private: true, scripts: { test: 'node spawn-descendant.mjs' } }), 'utf8');
-    const adapter = psLoaded.module.createWindowsPowerShellAdapter({ allowedRoots: [base], timeoutMs: 1500, maxBuffer: 1_048_576 });
-    const result = await adapter.execute({ operation: 'test.run', cwd: base });
-    await waitForFile(pidFile, 5_000);
-    const descendantPid = Number.parseInt(await fs.readFile(pidFile, 'utf8'), 10);
-    await sleep(700);
-    const descendantAliveAfterTimeout = processAlive(descendantPid);
-    if (descendantAliveAfterTimeout) {
-      try { execFileSync('taskkill.exe', ['/PID', String(descendantPid), '/T', '/F'], { stdio: 'ignore' }); } catch {}
-    }
-    return {
-      adapter_success: result.success,
-      adapter_timed_out: result.timed_out,
-      adapter_exit_code: result.exit_code,
-      descendant_pid: descendantPid,
-      descendant_alive_after_adapter_return: descendantAliveAfterTimeout,
-      cleanup_attempted: descendantAliveAfterTimeout,
-      pass: result.success === false && result.timed_out === true && descendantAliveAfterTimeout === false,
-    };
-  } finally {
-    await fs.rm(base, { recursive: true, force: true });
+  let descendantPid = null;
+  const spawner = `import { spawn } from 'node:child_process';\nimport { writeFileSync } from 'node:fs';\nconst child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 300000)'], { detached: true, stdio: 'ignore', windowsHide: true });\nwriteFileSync(${JSON.stringify(pidFile)}, String(child.pid));\nchild.unref();\nsetTimeout(() => {}, 300000);\n`;
+  await fs.writeFile(path.join(base, 'spawn-descendant.mjs'), spawner, 'utf8');
+  await fs.writeFile(path.join(base, 'package.json'), JSON.stringify({ private: true, scripts: { test: 'node spawn-descendant.mjs' } }), 'utf8');
+  const adapter = psLoaded.module.createWindowsPowerShellAdapter({ allowedRoots: [base], timeoutMs: 1500, maxBuffer: 1_048_576 });
+  const result = await adapter.execute({ operation: 'test.run', cwd: base });
+  await waitForFile(pidFile, 5_000);
+  descendantPid = Number.parseInt(await fs.readFile(pidFile, 'utf8'), 10);
+  await sleep(700);
+  const descendantAliveAfterAdapterReturn = processAlive(descendantPid);
+  let cleanupAttempted = false;
+  let descendantExitedAfterCleanup = !descendantAliveAfterAdapterReturn;
+  if (descendantAliveAfterAdapterReturn) {
+    cleanupAttempted = true;
+    try { execFileSync('taskkill.exe', ['/PID', String(descendantPid), '/T', '/F'], { stdio: 'ignore' }); } catch {}
+    descendantExitedAfterCleanup = await waitForProcessExit(descendantPid, 5_000);
   }
+  const cleanup = await removeTreeEventually(base, 5_000);
+  return {
+    adapter_success: result.success,
+    adapter_timed_out: result.timed_out,
+    adapter_exit_code: result.exit_code,
+    descendant_pid: descendantPid,
+    descendant_alive_after_adapter_return: descendantAliveAfterAdapterReturn,
+    cleanup_attempted: cleanupAttempted,
+    descendant_exited_after_cleanup: descendantExitedAfterCleanup,
+    temp_tree_removed_after_cleanup: cleanup.removed,
+    temp_tree_cleanup_error: cleanup.last_error_code,
+    pass: result.success === false && result.timed_out === true && descendantAliveAfterAdapterReturn === false,
+  };
 });
 
 const evidence = {
-  schema: 'prs.agentos-windows-process-boundary-probe.v1',
+  schema: 'prs.agentos-windows-process-boundary-probe.v2',
   exact_head: ref,
   source_tree: git('rev-parse', `${ref}^{tree}`),
   writer_sha256: sha256(writerLoaded.exactSource),
