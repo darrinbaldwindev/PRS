@@ -130,13 +130,16 @@ jobs:
       - name: Run exact AgentOS writer against GemVerse fixture on hosted Windows
         shell: pwsh
         run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
+      - name: Run hosted Windows filesystem adversarial probe
+        shell: pwsh
+        run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
       - name: Write hosted Windows evidence
         if: ${{ always() }}
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path validation-evidence | Out-Null
           $evidence = [ordered]@{
-            schema = 'prs.hosted-windows-level2-validation.v1'
+            schema = 'prs.hosted-windows-level2-validation.v2'
             workflow = $env:GITHUB_WORKFLOW
             run_id = $env:GITHUB_RUN_ID
             run_attempt = $env:GITHUB_RUN_ATTEMPT
@@ -149,6 +152,7 @@ jobs:
             owner_windows_laptop_exercised = $false
             scheduler_or_local_wake_exercised = $false
             production_repository_mutated = $false
+            windows_probes = @('gemverse-fixture-recovery-concurrency','junction-containment','open-handle-safety')
             recorded_at_utc = (Get-Date).ToUniversalTime().ToString('o')
             note = 'Hosted Windows/NTFS assurance evidence only; not owner-laptop acceptance or overall AgentOS GREEN.'
           }
