@@ -51,6 +51,8 @@ jobs:
           persist-credentials: false
       - name: Run immutable AgentOS Level-2 project-file adversarial probe
         run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
+      - name: Run immutable AgentOS project-file boundary probe
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
       - name: Run immutable AgentOS PowerShell adversarial probe
         run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
       - name: Write validation evidence
@@ -71,7 +73,7 @@ jobs:
             "runner": "${RUNNER_OS}",
             "agentos_host_status_target": "d91abaecf602d7ef223c4888f10fa9361677302e",
             "agentos_level2_target": "fddca3363925b9acb5ecb05552ae5d82ce7fed32",
-            "level2_probes": ["project-file", "powershell"],
+            "level2_probes": ["project-file", "project-file-boundaries", "powershell"],
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "note": "Workflow execution evidence only; this does not constitute independent production readiness, overall AgentOS GREEN, runtime pickup authorization, or physical Windows acceptance."
           }
