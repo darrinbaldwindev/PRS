@@ -59,6 +59,15 @@ jobs:
         run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
       - name: Run immutable AgentOS PowerShell adversarial probe
         run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
+      - name: Check out exact GemVerse Level-2 fixture target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/GemVerse
+          ref: b50973474fad510c650507cc978ba2466c09f0a6
+          path: validation-target/GemVerse
+          persist-credentials: false
+      - name: Run AgentOS against exact GemVerse Level-2 fixture
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -77,9 +86,10 @@ jobs:
             "runner": "${RUNNER_OS}",
             "agentos_host_status_target": "d91abaecf602d7ef223c4888f10fa9361677302e",
             "agentos_level2_target": "fddca3363925b9acb5ecb05552ae5d82ce7fed32",
-            "level2_probes": ["project-file", "project-file-boundaries", "recovery-governance", "project-file-recovery-state", "powershell"],
+            "gemverse_level2_fixture_target": "b50973474fad510c650507cc978ba2466c09f0a6",
+            "level2_probes": ["project-file", "project-file-boundaries", "recovery-governance", "project-file-recovery-state", "powershell", "gemverse-level2-fixture"],
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "note": "Workflow execution evidence only; this does not constitute independent production readiness, overall AgentOS GREEN, runtime pickup authorization, or physical Windows acceptance."
+            "note": "Workflow execution evidence only; GemVerse is an ephemeral checkout. This does not constitute physical Windows acceptance, scheduler/local-wake pickup, production readiness, or overall AgentOS GREEN."
           }
           EOF
       - name: Upload validation evidence
