@@ -1,0 +1,46 @@
+name: Validate AgentOS PowerShell local-wake slice
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-local-wake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS Level-2 target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: 7142e3510d32021e350616bb77d53069bb996b8b
+          path: validation-target/AgentOS-level2
+          persist-credentials: false
+      - name: Run immutable PowerShell local-wake evidence-only probe
+        run: node scripts/challenge-agentos-powershell-local-wake-evidence.mjs validation-target/AgentOS-level2 7142e3510d32021e350616bb77d53069bb996b8b
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p validation-evidence
+          cat > validation-evidence/powershell-local-wake.json <<EOF
+          {
+            "schema": "prs.powershell-local-wake-validation.v1",
+            "agentos_exact_head": "7142e3510d32021e350616bb77d53069bb996b8b",
+            "prs_commit": "${GITHUB_SHA}",
+            "local_wake_powershell_evidence_only_exercised": true,
+            "runtime_execution_enabled": false,
+            "scheduler_execution_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "production_repository_mutated": false,
+            "note": "Independent evidence-only local-wake assurance. This does not authorize PowerShell execution or constitute overall AgentOS GREEN."
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-powershell-local-wake-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/powershell-local-wake.json
+          if-no-files-found: error
