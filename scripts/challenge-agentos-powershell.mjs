@@ -53,6 +53,10 @@ async function run(id, fn) {
 }
 
 function admittedTask(overrides = {}) {
+  // The canonical pickup gate allows queued work for 30 minutes. Make this
+  // synthetic admitted task fresh at probe execution time so this case tests
+  // execution_authorized=false rather than accidentally testing queue expiry.
+  const freshCreatedAt = new Date(Date.now() - 60_000).toISOString();
   return {
     task_id: 'task-pwsh-prs',
     mission_id: 'mission-pwsh-prs',
@@ -68,7 +72,7 @@ function admittedTask(overrides = {}) {
     required_capabilities: ['shell.powershell.repo.read'],
     scope: ['local-runtime'],
     constraints: ['bounded-command-catalogue'],
-    created_at: '2026-09-12T08:00:00.000Z',
+    created_at: freshCreatedAt,
     execution: { adapter: 'windows-powershell', operation: 'repo.status', cwd: 'C:/agentos/AgentOS' },
     ...overrides,
   };
