@@ -133,13 +133,16 @@ jobs:
       - name: Run hosted Windows filesystem adversarial probe
         shell: pwsh
         run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
+      - name: Run hosted Windows process adversarial probe
+        shell: pwsh
+        run: node scripts/challenge-agentos-windows-process-boundaries.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
       - name: Write hosted Windows evidence
         if: ${{ always() }}
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path validation-evidence | Out-Null
           $evidence = [ordered]@{
-            schema = 'prs.hosted-windows-level2-validation.v2'
+            schema = 'prs.hosted-windows-level2-validation.v3'
             workflow = $env:GITHUB_WORKFLOW
             run_id = $env:GITHUB_RUN_ID
             run_attempt = $env:GITHUB_RUN_ATTEMPT
@@ -152,9 +155,9 @@ jobs:
             owner_windows_laptop_exercised = $false
             scheduler_or_local_wake_exercised = $false
             production_repository_mutated = $false
-            windows_probes = @('gemverse-fixture-recovery-concurrency','junction-containment','open-handle-safety')
+            windows_probes = @('gemverse-fixture-recovery-concurrency','junction-containment','open-handle-recovery','separate-process-contention','powershell-timeout-process-tree')
             recorded_at_utc = (Get-Date).ToUniversalTime().ToString('o')
-            note = 'Hosted Windows/NTFS assurance evidence only; not owner-laptop acceptance or overall AgentOS GREEN.'
+            note = 'Hosted Windows assurance evidence only; not owner-laptop acceptance or overall AgentOS GREEN.'
           }
           $evidence | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 validation-evidence/hosted-windows-level2-validation.json
       - name: Upload hosted Windows evidence
