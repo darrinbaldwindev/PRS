@@ -198,7 +198,7 @@ await runCase('powershell-timeout-terminates-descendant-process-tree', async () 
   const spawner = `import { spawn } from 'node:child_process';\nimport { writeFileSync } from 'node:fs';\nconst child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 300000)'], { detached: true, stdio: 'ignore', windowsHide: true });\nwriteFileSync(${JSON.stringify(pidFile)}, String(child.pid));\nchild.unref();\nsetTimeout(() => {}, 300000);\n`;
   await fs.writeFile(path.join(base, 'spawn-descendant.mjs'), spawner, 'utf8');
   await fs.writeFile(path.join(base, 'package.json'), JSON.stringify({ private: true, scripts: { test: 'node spawn-descendant.mjs' } }), 'utf8');
-  const adapter = psLoaded.module.createWindowsPowerShellAdapter({ allowedRoots: [base], timeoutMs: 1500, maxBuffer: 1_048_576 });
+  const adapter = psLoaded.module.createWindowsPowerShellAdapter({ allowedRoots: [base], timeoutMs: 5000, maxBuffer: 1_048_576 });
   const result = await adapter.execute({ operation: 'test.run', cwd: base });
   await waitForFile(pidFile, 5_000);
   descendantPid = Number.parseInt(await fs.readFile(pidFile, 'utf8'), 10);
