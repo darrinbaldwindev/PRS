@@ -1,5 +1,5 @@
 // Hosted-Windows-only provenance probe for exact AgentOS Level-2 PowerShell execution.
-// Confirms the canonical host probe identity matches the exact binaries used by the adapter.
+// Confirms canonical host-probe identity matches execution and identity drift fails closed.
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
@@ -44,8 +44,8 @@ try {
   const tools = hostEvidence.evaluation.tool_evidence;
 
   const adapter = adapterLoaded.module.createWindowsPowerShellAdapter({ allowedRoots: [base], timeoutMs: 30_000 });
-  const repoResult = await adapter.execute({ operation: 'repo.status', cwd: base });
-  const testResult = await adapter.execute({ operation: 'test.run', cwd: base });
+  const repoResult = await adapter.execute({ operation: 'repo.status', cwd: base, expectedExecutables: tools });
+  const testResult = await adapter.execute({ operation: 'test.run', cwd: base, expectedExecutables: tools });
 
   const psMatchesRepo = sameIdentity(tools['powershell.exe'], repoResult.resolved_executables['powershell.exe']);
   const psMatchesTest = sameIdentity(tools['powershell.exe'], testResult.resolved_executables['powershell.exe']);
@@ -83,20 +83,46 @@ try {
     test_resolved_executables: testResult.resolved_executables,
     pass: hostEvidence.evaluation.eligible === true && repoResult.success === true && testResult.success === true && psMatchesRepo && psMatchesTest && gitMatches && npmMatches && receiptPreserves,
   });
+
+  let driftExecutorCalls = 0;
+  const driftAdapter = adapterLoaded.module.createWindowsPowerShellAdapter({
+    allowedRoots: [base],
+    timeoutMs: 30_000,
+    toolResolver: async (tool) => {
+      if (tool === 'powershell.exe') return { path: tools['powershell.exe'].path, version: tools['powershell.exe'].version };
+      if (tool === 'git.exe') return { path: 'C:\\shadowed-tools\\git.exe', version: tools['git.exe'].version };
+      return { path: tools[tool]?.path, version: tools[tool]?.version ?? null };
+    },
+    executor: async () => {
+      driftExecutorCalls += 1;
+      return { stdout: 'UNSAFE_EXECUTION_OCCURRED', stderr: '', exitCode: 0 };
+    },
+  });
+  const driftResult = await driftAdapter.execute({ operation: 'repo.status', cwd: base, expectedExecutables: tools });
+  evidence.cases.push({
+    id: 'post-probe-operation-tool-identity-drift-fails-before-spawn',
+    simulated_drift: 'git.exe path replaced after host probe',
+    adapter_success: driftResult.success,
+    executor_invocations: driftExecutorCalls,
+    observed_stderr: driftResult.stderr,
+    observed_resolved_git: driftResult.resolved_executables?.['git.exe'] ?? null,
+    pass: driftResult.success === false && driftExecutorCalls === 0 && /POWERSHELL_EXECUTABLE_IDENTITY_MISMATCH:git\.exe/.test(driftResult.stderr),
+  });
 } finally {
   await rm(base, { recursive: true, force: true });
 }
 
-evidence.schema = 'prs.agentos-windows-executable-provenance.v1';
+evidence.schema = 'prs.agentos-windows-executable-provenance.v2';
 evidence.exact_head = ref;
 evidence.platform = process.platform;
 evidence.hosted_windows_runner_exercised = true;
 evidence.owner_windows_laptop_exercised = false;
 evidence.scheduler_or_local_wake_exercised = false;
 evidence.production_repository_mutated = false;
+evidence.identity_drift_simulated = true;
 evidence.assurance_certified = false;
 evidence.production_promotion_allowed = false;
-evidence.pass = evidence.cases.length === 1 && evidence.cases.every((item) => item.pass === true);
-evidence.status = evidence.pass ? 'HOSTED_WINDOWS_EXECUTABLE_PROVENANCE_PASS' : 'HOSTED_WINDOWS_EXECUTABLE_PROVENANCE_FAIL';
+evidence.pass = evidence.cases.length === 2 && evidence.cases.every((item) => item.pass === true);
+evidence.status = evidence.pass ? 'HOSTED_WINDOWS_EXECUTABLE_PROVENANCE_AND_DRIFT_PASS' : 'HOSTED_WINDOWS_EXECUTABLE_PROVENANCE_FAIL';
 console.log(JSON.stringify(evidence, null, 2));
 process.exitCode = evidence.pass ? 0 : 1;
