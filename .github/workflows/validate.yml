@@ -42,6 +42,15 @@ jobs:
           persist-credentials: false
       - name: Run immutable AgentOS host-status adversarial probe
         run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS d91abaecf602d7ef223c4888f10fa9361677302e
+      - name: Check out exact AgentOS Level-2 project-file target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: fddca3363925b9acb5ecb05552ae5d82ce7fed32
+          path: validation-target/AgentOS-level2
+          persist-credentials: false
+      - name: Run immutable AgentOS Level-2 project-file adversarial probe
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 fddca3363925b9acb5ecb05552ae5d82ce7fed32
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -59,8 +68,9 @@ jobs:
             "event": "${GITHUB_EVENT_NAME}",
             "runner": "${RUNNER_OS}",
             "agentos_host_status_target": "d91abaecf602d7ef223c4888f10fa9361677302e",
+            "agentos_level2_project_file_target": "fddca3363925b9acb5ecb05552ae5d82ce7fed32",
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "note": "Workflow execution evidence only; this does not constitute independent production readiness or physical Windows acceptance."
+            "note": "Workflow execution evidence only; this does not constitute independent production readiness, overall AgentOS GREEN, or physical Windows acceptance."
           }
           EOF
       - name: Upload validation evidence
