@@ -1,0 +1,69 @@
+name: Validate AgentOS project-file current head
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  challenge-current-project-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probes
+        uses: actions/checkout@v4
+
+      - name: Check out exact AgentOS PR 104 head
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+          path: validation-target/AgentOS
+          persist-credentials: false
+
+      - name: Verify exact AgentOS identity
+        shell: bash
+        run: |
+          actual="$(git -C validation-target/AgentOS rev-parse HEAD)"
+          test "$actual" = "6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238"
+
+      - name: Challenge project-file mutation semantics
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+
+      - name: Challenge project-file boundaries
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+
+      - name: Challenge project-file recovery state
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+
+      - name: Challenge recovery governance
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+
+      - name: Record bounded evidence
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p validation-evidence
+          cat > validation-evidence/current-project-file.json <<'JSON'
+          {
+            "schema": "prs.agentos-project-file-current-head.v1",
+            "agentos_target": "6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238",
+            "pr": 104,
+            "owner_windows_laptop_exercised": false,
+            "local_wake_execution_enabled": false,
+            "production_repository_mutated": false,
+            "assurance_scope": [
+              "project-file-mutation",
+              "approved-root-boundaries",
+              "recovery-state",
+              "recovery-governance"
+            ],
+            "note": "Exact-head adversarial assurance only. Not owner-laptop acceptance, scheduler/local-wake execution, production readiness, or overall AgentOS GREEN."
+          }
+          JSON
+
+      - name: Upload evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-agentos-project-file-current-head-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/current-project-file.json
+          if-no-files-found: error
