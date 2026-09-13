@@ -14,11 +14,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: e059e2f7a08f3584585aae427e33c7e189a42029
+          ref: efef0f73fa790b830bf69e32fbdcf7d86dd5b027
           path: validation-target/AgentOS
           persist-credentials: false
       - name: Run immutable full-composition probe
-        run: node scripts/challenge-agentos-powershell-governed-composition.mjs validation-target/AgentOS e059e2f7a08f3584585aae427e33c7e189a42029
+        run: node scripts/challenge-agentos-powershell-governed-composition.mjs validation-target/AgentOS efef0f73fa790b830bf69e32fbdcf7d86dd5b027
       - name: Record bounded assurance target
         if: ${{ always() }}
         shell: bash
@@ -27,17 +27,18 @@ jobs:
           mkdir -p validation-evidence
           cat > validation-evidence/powershell-governed-composition.json <<EOF
           {
-            "schema": "prs.agentos-powershell-governed-composition-workflow.v1",
+            "schema": "prs.agentos-powershell-governed-composition-workflow.v2",
             "workflow": "${GITHUB_WORKFLOW}",
             "run_id": "${GITHUB_RUN_ID}",
             "run_attempt": "${GITHUB_RUN_ATTEMPT}",
             "prs_commit_sha": "${GITHUB_SHA}",
-            "agentos_target": "e059e2f7a08f3584585aae427e33c7e189a42029",
+            "agentos_target": "efef0f73fa790b830bf69e32fbdcf7d86dd5b027",
             "real_powershell_process_exercised": false,
+            "local_wake_dry_run_gate_exercised": true,
             "local_wake_execution_exercised": false,
             "scheduler_execution_exercised": false,
-            "operation_risk_mapping_exercised": false,
-            "replay_recovery_exercised": false,
+            "operation_risk_mapping_exercised": true,
+            "replay_recovery_exercised": true,
             "owner_windows_laptop_exercised": false,
             "assurance_certified": false,
             "production_promotion_allowed": false,
