@@ -1,0 +1,59 @@
+PR #104 verification evidence log
+Date: 2026-09-13
+Repository: darrinbaldwindev/AgentOS
+PR: 104
+Exact head: 2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7
+Mode: read-only inspection; no project execution; no GitHub mutations
+
+[VERIFIED] PR metadata
+- state: OPEN
+- isDraft: true
+- headRefName: agent/overseer/windows-worker-bridge
+- baseRefName: agent/overseer/remote-local-bridge-contract
+- mergeStateStatus: CLEAN
+- reviewDecision: empty / no formal decision recorded
+- updatedAt: 2026-09-12T22:22:55Z
+- title: feat(local): stage governed PowerShell Windows worker on remote-bridge lineage
+
+[VERIFIED] Reported status checks
+- AgentOS Tests / test: SUCCESS; completed 2026-09-12T21:20:50Z
+- AgentOS Tests / test: SUCCESS; completed 2026-09-12T21:21:20Z
+
+[VERIFIED] Latest head commit
+- commit: 2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7
+- message: test(runtime): cover worker consent gate fail-closed states
+- authored: 2026-09-12T21:20:30Z
+
+[VERIFIED] Changed-file scope
+- 30 files changed: bounded worker/runtime modules, governance modules, and tests.
+- Relevant paths include runtime/windows-powershell-adapter.mjs, runtime/windows-powershell-local-worker.mjs, runtime/windows-powershell-remote-gate.mjs, runtime/windows-worker-host-probe.mjs, runtime/worker-consent-gate.mjs, runtime/governed-execution-boundary.mjs, and related tests.
+
+[VERIFIED] Source findings at exact head
+- Fixed operation catalogue is present.
+- Approved-root/canonical path checks are present.
+- PowerShell invocation is non-interactive and non-elevated.
+- Executable identity/version checks are present.
+- Exit-code, stdout/stderr, timeout, and bounded-output evidence are represented.
+- Consent/governed boundary, receipt, verification, and correlation composition are present.
+- Local-wake PowerShell path deliberately stops before worker/process execution when runtimeExecutionEnabled is false.
+- Tests assert zero invocation for disabled execution and fail-closed behavior for missing identity, capability mismatch, missing correlation, and path failures.
+
+[VERIFIED] Runtime status
+- Evidence-only canonical pickup path is wired.
+- Runtime PowerShell execution is not enabled by default.
+- Scheduler-triggered PowerShell execution is not established by this inspection.
+
+[UNKNOWN / NOT VERIFIED]
+- Physical Windows host capability evidence.
+- Real Windows junction/reparse behavior.
+- Physical Windows Level-2 acceptance.
+- End-to-end claim/receipt/verification/Green completion.
+- Duplicate/crash/result-write recovery with actual PowerShell integration.
+- Independent exact-head PRS/Green assurance beyond reported checks.
+- Production readiness, security readiness, merge readiness, or release readiness.
+
+[DISPOSITION]
+AMBER. Keep PR #104 DRAFT. Do not claim overall GREEN. No merge, approval, ready transition, rebase, deployment, credential change, unrestricted shell, production write, or production autonomy was performed or authorized.
+
+[REDACTION / EXCLUSION]
+Raw sandbox runtime logs were not archived because they contain platform telemetry, session identifiers, infrastructure endpoints, browser/state-sync activity, and unrelated operational metadata. Credentials, tokens, connector configuration, browser state, and secrets were excluded.

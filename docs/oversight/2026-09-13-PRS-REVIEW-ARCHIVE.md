@@ -11,6 +11,8 @@ This archive records the independent Lite-capacity PRS-style adversarial review 
 ## Included artifact
 
 - `docs/oversight/prs_adversarial_review_2026-09-13.md` — consolidated review handoff produced from five independent Lite reviewers and one reducer.
+- `docs/oversight/pr-104-windows-worker-verification-2026-09-13.md` — read-only verification of PR #104 at exact head `2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7`.
+- `docs/oversight/pr-104-verification-evidence-2026-09-13.log` — sanitized metadata, source-inspection findings, disposition, and redaction record.
 
 ## Provenance
 
@@ -29,5 +31,7 @@ The GitHub connector configuration was enabled only to perform this user-request
 ## Reassessment requirement
 
 Before any PR, security, production, merge, release, or readiness conclusion, independently obtain and inspect the authoritative PR metadata, exact commit/diff, target-environment CI and fault-injection evidence, consent/authorization controls, durable recovery state, replay/idempotency behavior, exact correlation traces, control-plane boundaries, and—if in scope—commercial-flow independence evidence.
+
+The latest verification preserves the same boundary: the bounded implementation and component-test slice is present, but the PR remains Draft/Amber because runtime execution is deliberately disabled and physical Windows, end-to-end recovery, and independent exact-head assurance remain unverified.
 
 > This archive is a review record, not proof of runtime correctness, security, production readiness, or release readiness.
