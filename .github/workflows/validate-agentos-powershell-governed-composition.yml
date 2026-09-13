@@ -1,0 +1,53 @@
+name: Validate AgentOS PowerShell governed composition
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-governed-composition:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: e059e2f7a08f3584585aae427e33c7e189a42029
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable full-composition probe
+        run: node scripts/challenge-agentos-powershell-governed-composition.mjs validation-target/AgentOS e059e2f7a08f3584585aae427e33c7e189a42029
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/powershell-governed-composition.json <<EOF
+          {
+            "schema": "prs.agentos-powershell-governed-composition-workflow.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "prs_commit_sha": "${GITHUB_SHA}",
+            "agentos_target": "e059e2f7a08f3584585aae427e33c7e189a42029",
+            "real_powershell_process_exercised": false,
+            "local_wake_execution_exercised": false,
+            "scheduler_execution_exercised": false,
+            "operation_risk_mapping_exercised": false,
+            "replay_recovery_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "assurance_certified": false,
+            "production_promotion_allowed": false,
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-powershell-governed-composition-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/powershell-governed-composition.json
+          if-no-files-found: error
