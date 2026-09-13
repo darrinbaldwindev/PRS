@@ -256,7 +256,7 @@ const evidence = {
   assurance_certified: false,
   production_promotion_allowed: false,
 };
-evidence.pass = cases.length === 8 && cases.every((x) => x.pass === true);
+evidence.pass = cases.length === 9 && cases.every((x) => x.pass === true);
 evidence.status = evidence.pass ? 'POWERSHELL_GOVERNED_COMPOSITION_PASS' : 'POWERSHELL_GOVERNED_COMPOSITION_FAIL';
 console.log(JSON.stringify(evidence, null, 2));
 process.exitCode = evidence.pass ? 0 : 1;
