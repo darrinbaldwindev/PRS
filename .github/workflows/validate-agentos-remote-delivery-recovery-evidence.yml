@@ -1,0 +1,54 @@
+name: Validate AgentOS remote delivery recovery evidence
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-recovery-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: fc5da80c3d67031eb161560d81b066dc07ccb4dd
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable recovery-evidence probe
+        run: node scripts/challenge-agentos-remote-delivery-recovery-evidence.mjs validation-target/AgentOS fc5da80c3d67031eb161560d81b066dc07ccb4dd
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/remote-delivery-recovery-evidence.json <<EOF
+          {
+            "schema": "prs.agentos-remote-delivery-recovery-evidence-workflow.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "prs_commit_sha": "${GITHUB_SHA}",
+            "agentos_target": "fc5da80c3d67031eb161560d81b066dc07ccb4dd",
+            "claim_mutation_exercised": false,
+            "claim_release_exercised": false,
+            "automatic_replay_authorized": false,
+            "real_powershell_process_exercised": false,
+            "local_wake_execution_exercised": false,
+            "scheduler_execution_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "assurance_certified": false,
+            "production_promotion_allowed": false,
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-remote-delivery-recovery-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/remote-delivery-recovery-evidence.json
+          if-no-files-found: error

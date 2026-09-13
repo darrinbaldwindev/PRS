@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -34,6 +33,43 @@ jobs:
           test -s .github/workflows/validate.yml
       - name: Run evaluator tests
         run: python -m pytest -q
+      - name: Check out exact AgentOS host-status target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: d91abaecf602d7ef223c4888f10fa9361677302e
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable AgentOS host-status adversarial probe
+        run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS d91abaecf602d7ef223c4888f10fa9361677302e
+      - name: Check out exact AgentOS Level-2 target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: 8673cef0b53c17841c0445a886ed3c079061c1e4
+          path: validation-target/AgentOS-level2
+          persist-credentials: false
+      - name: Run immutable AgentOS Level-2 project-file adversarial probe
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run immutable AgentOS project-file boundary probe
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run immutable AgentOS recovery-governance probe
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run immutable AgentOS recovery-state adversarial probe
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run immutable AgentOS PowerShell adversarial probe
+        run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run immutable bounded PowerShell runtime-enable probe
+        run: node scripts/challenge-agentos-powershell-runtime-enable.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Check out exact GemVerse Level-2 fixture target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/GemVerse
+          ref: b50973474fad510c650507cc978ba2466c09f0a6
+          path: validation-target/GemVerse
+          persist-credentials: false
+      - name: Run AgentOS against exact GemVerse Level-2 fixture
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -50,8 +86,12 @@ jobs:
             "ref": "${GITHUB_REF}",
             "event": "${GITHUB_EVENT_NAME}",
             "runner": "${RUNNER_OS}",
+            "agentos_host_status_target": "d91abaecf602d7ef223c4888f10fa9361677302e",
+            "agentos_level2_target": "8673cef0b53c17841c0445a886ed3c079061c1e4",
+            "gemverse_level2_fixture_target": "b50973474fad510c650507cc978ba2466c09f0a6",
+            "level2_probes": ["project-file", "project-file-boundaries", "recovery-governance", "project-file-recovery-state", "powershell", "powershell-runtime-enable", "gemverse-level2-fixture"],
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "note": "Workflow execution evidence only; this does not constitute independent buyer validation or production readiness."
+            "note": "Workflow execution evidence only; the runtime-enable probe is stub-only and does not connect local-wake/scheduler. This does not constitute owner-laptop acceptance, production readiness, or overall AgentOS GREEN."
           }
           EOF
       - name: Upload validation evidence
@@ -60,4 +100,75 @@ jobs:
         with:
           name: prs-validation-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: validation-evidence/github-actions-validation.json
+          if-no-files-found: error
+
+  windows-level2:
+    runs-on: windows-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS Level-2 target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: 8673cef0b53c17841c0445a886ed3c079061c1e4
+          path: validation-target/AgentOS-level2
+          persist-credentials: false
+      - name: Check out exact GemVerse Level-2 fixture target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/GemVerse
+          ref: b50973474fad510c650507cc978ba2466c09f0a6
+          path: validation-target/GemVerse
+          persist-credentials: false
+      - name: Record hosted Windows environment
+        shell: pwsh
+        run: |
+          $PSVersionTable | Out-String | Write-Host
+          node --version
+          git --version
+          where.exe powershell.exe
+          powershell.exe -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
+      - name: Run exact AgentOS writer against GemVerse fixture on hosted Windows
+        shell: pwsh
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
+      - name: Run hosted Windows filesystem adversarial probe
+        shell: pwsh
+        run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run hosted Windows process adversarial probe
+        shell: pwsh
+        run: node scripts/challenge-agentos-windows-process-boundaries.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run hosted Windows executable provenance probe
+        shell: pwsh
+        run: node scripts/challenge-agentos-windows-executable-provenance.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Write hosted Windows evidence
+        if: ${{ always() }}
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path validation-evidence | Out-Null
+          $evidence = [ordered]@{
+            schema = 'prs.hosted-windows-level2-validation.v6'
+            workflow = $env:GITHUB_WORKFLOW
+            run_id = $env:GITHUB_RUN_ID
+            run_attempt = $env:GITHUB_RUN_ATTEMPT
+            commit_sha = $env:GITHUB_SHA
+            ref = $env:GITHUB_REF
+            runner_os = $env:RUNNER_OS
+            agentos_level2_target = '8673cef0b53c17841c0445a886ed3c079061c1e4'
+            gemverse_level2_fixture_target = 'b50973474fad510c650507cc978ba2466c09f0a6'
+            hosted_windows_runner_exercised = $true
+            owner_windows_laptop_exercised = $false
+            scheduler_or_local_wake_exercised = $false
+            production_repository_mutated = $false
+            windows_probes = @('gemverse-fixture-recovery-concurrency','junction-containment','open-handle-recovery','separate-process-contention','powershell-timeout-process-tree','executable-provenance','executable-identity-drift')
+            recorded_at_utc = (Get-Date).ToUniversalTime().ToString('o')
+            note = 'Hosted Windows assurance evidence only. Local-wake/scheduler remains unconnected. Not owner-laptop acceptance or overall AgentOS GREEN.'
+          }
+          $evidence | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 validation-evidence/hosted-windows-level2-validation.json
+      - name: Upload hosted Windows evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-hosted-windows-level2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/hosted-windows-level2-validation.json
           if-no-files-found: error
