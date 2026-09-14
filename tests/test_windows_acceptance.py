@@ -126,6 +126,21 @@ def test_known_agentos_104_acceptance_blockers_are_fail_not_green():
     assert result["overall_agentos_green"] is False
 
 
+def test_current_agentos_pr104_fixture_is_fail_despite_other_missing_physical_evidence():
+    fixture_path = Path(__file__).parent / "fixtures" / "owner-windows-level2" / "current-agentos-pr104.json"
+    data = json.loads(fixture_path.read_text(encoding="utf-8"))
+    result = evaluate_owner_windows_acceptance(data)
+    assert data["identity"]["code_identity"] == "83a58b8bd230550b5781a0fee700cca250819a75"
+    assert data["gates"]["C"]["status"] == "fail"
+    assert data["gates"]["E"]["status"] == "fail"
+    assert data["physical_owner_machine"] is False
+    assert data["scheduler_local_wake_exercised"] is False
+    assert result["disposition"] == "fail"
+    assert result["production_promotion_allowed"] is False
+    assert result["overall_agentos_green"] is False
+    assert "hosted_windows_is_not_owner_laptop_acceptance" in result["limitations"]
+
+
 def test_malformed_or_missing_evidence_references_never_pass():
     data = bundle()
     data["gates"]["A"]["evidence"] = []
