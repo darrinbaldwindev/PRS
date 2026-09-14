@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-VERSION = "0.1.0"
+from . import __version__
+
+VERSION = __version__
 
 REQUIRED_FOUNDATION_FILES = (
     "README.md",
