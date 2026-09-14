@@ -1,7 +1,7 @@
 # PRS Vertical Execution Batch
 
 **Batch:** PRS-VERTICAL-2026-09-14-01  
-**Reconciled:** 2026-09-14 18:40 Australia/Brisbane  
+**Reconciled:** 2026-09-14 18:41 Australia/Brisbane  
 **Canonical PRS main:** `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207`  
 **Execution mode:** fresh scan -> prioritize -> execute fullest safe batch -> exact-head verify -> rescan -> replenish -> durable log
 
@@ -70,22 +70,13 @@ Current behavior:
 - 12 negative tests reject missing/mismatched delivery, request, host, actor, issuer and configuration identity;
 - evaluator provenance is `offline-bridge-0.4`.
 
-Verified predecessor exact PRS head `831834889182b235061156742a8ca1c4235f871e`:
-- Validate repository run #141 / `34823444673`;
-- Linux: 129 tests PASS;
-- hosted Windows Level-2 job PASS;
-- validation artifact ID `10339078228`, SHA256 `514e2dc7dcc12fa402751806aac9f565eaacec39ba0b91fc1fbdd074bc7e785a`;
-- hosted Windows artifact ID `10338998585`, SHA256 `835d284d2a75735a639b45b90c4b5f98361214a46d8a167a9c69e117845a1a2c`.
-
-The current PR #17 head moved only by the new acceptance-contract documentation below, so new exact-head CI is being collected before the current head is labelled fully verified.
-
 ## Physical Windows Level-2 acceptance contract
 
 Created on active PR #17:
 - `docs/OWNER-WINDOWS-LEVEL2-ACCEPTANCE-CONTRACT.md`
-- commit/head: `604920cd8f50121200c7c82ac29b42c894df07b5`.
+- exact current head: `604920cd8f50121200c7c82ac29b42c894df07b5`.
 
-The contract now requires, as separate mandatory gates:
+The contract requires separate mandatory gates for:
 1. exact AgentOS/PRS code and build provenance;
 2. physical owner-machine identity and supervised consent;
 3. canonical authenticated actor + authority/grant evidence;
@@ -107,25 +98,37 @@ Current physical disposition remains:
 - physical power-loss durability: **NOT PROVEN**;
 - overall AgentOS GREEN: **NOT ISSUED**.
 
-## Exact-head CI for current PR #17 head
+## Exact-head verification for current PR #17 head
 
 Current head: `604920cd8f50121200c7c82ac29b42c894df07b5`.
 
-- focused PR #17 workflows seen so far: SUCCESS;
-- Validate repository run #143 / `34823845958`:
-  - Linux validate job `103911303285`: SUCCESS;
-  - `python -m pytest -q`: **129 passed in 0.17s**;
-  - validation evidence artifact uploaded: `prs-validation-evidence-34823845958-1`, artifact ID `10339193628`, SHA256 `a421ccd77fb2c8e8fe41e911aae14b6269f8f52624ebf68bb3ac5c860974c8cf`;
-  - hosted Windows job `103911302893`: still executing at this reconciliation; writer, filesystem and process probes have passed and executable-provenance probe is in progress.
+GitHub Actions `Validate repository` run #143 / `34823845958`:
+- validation merge commit: `ff139ec3bceb9df9777fddafe257bb936c0cf991`;
+- Linux validate job `103911303285`: **SUCCESS**;
+- `python -m pytest -q`: **129 passed in 0.17s**;
+- hosted Windows Level-2 job `103911302893`: **SUCCESS**;
+- hosted writer/filesystem/process/executable-provenance steps: SUCCESS;
+- validation artifact `prs-validation-evidence-34823845958-1`, ID `10339193628`, SHA256 `a421ccd77fb2c8e8fe41e911aae14b6269f8f52624ebf68bb3ac5c860974c8cf`;
+- hosted Windows artifact `prs-hosted-windows-level2-34823845958-1`, ID `10339610036`, SHA256 `97feca898e160b57b7a030c52315e6d8469bfc6fbff54c052aa728fe151029af`.
 
-No physical-laptop claim may be inferred from this hosted job, regardless of its final conclusion.
+All focused PR #17 workflows observed for this exact head completed SUCCESS as execution evidence.
+
+This exact-head CI verifies repository/probe integrity after adding the contract. It does **not** prove physical owner-laptop acceptance.
+
+## PR #23 current-main reconciliation
+
+- PR #23 exact head: `ea6d40c06361f3f598eb71b2e009feefb46c4d37`.
+- Current main is one commit ahead of PR #23's base.
+- Direct compare shows that intervening main commit only adds `.overseer/VERTICAL-BATCH-ADOPTION.md`.
+- PR #23's functional files are untouched by that main change; existing PR #23 exact-head evidence remains evidence for its own head.
+- No autonomous rebase/merge was performed; a reconciliation comment was added to PR #23.
 
 ## Stale-lineage classification
 
 - PR #15: superseded implementation vehicle; retain historical evidence.
 - PR #16: evidence/ancestry lineage; not a standalone current promotion vehicle.
-- PR #19: unique hardening has now been ported and exact-head verified on active PR #17; stale/evidence-only implementation vehicle. Do not close/rebase/merge autonomously.
-- PR #22: superseded implementation vehicle; canonical main + PR #23 cover the current v0.1 consolidation/hardening path.
+- PR #19: unique hardening ported and exact-head verified on active PR #17; stale/evidence-only implementation vehicle. Do not close/rebase/merge autonomously.
+- PR #22: superseded implementation vehicle; canonical main + PR #23 cover current v0.1 consolidation/hardening direction.
 
 ## Replenished priority queue
 
@@ -147,31 +150,32 @@ When AgentOS #104 changes writer/ownership code:
 5. only then expand crash/concurrency/replay cases;
 6. require independent Green then PRS before any promotion consideration.
 
-### P0-3 — Turn physical acceptance contract into a machine-readable evidence checklist
-Next safe PRS work if AgentOS remains unchanged:
-1. define a bounded JSON evidence-bundle schema/checklist matching the new physical acceptance contract;
-2. require explicit booleans/identity refs rather than prose inference;
-3. make unexercised gates produce `INSUFFICIENT_EVIDENCE`, never PASS;
-4. keep the schema/evaluator offline and non-authoritative;
-5. do not connect it to owner hardware until upstream AgentOS P0 blockers are repaired.
+### P0-3 — Machine-readable physical acceptance evidence contract
+If AgentOS remains unchanged:
+1. define a bounded JSON schema/checklist matching `OWNER-WINDOWS-LEVEL2-ACCEPTANCE-CONTRACT.md`;
+2. require explicit identity/evidence references rather than prose inference;
+3. make unexercised gates resolve to `INSUFFICIENT_EVIDENCE`, never PASS;
+4. keep the schema/evaluator offline, deterministic and non-authoritative;
+5. add negative fixtures for hosted-only evidence, missing physical-host proof, missing scheduler/local-wake proof, incomplete 12-field correlation, missing crash/recovery proof, and worker-only evidence custody;
+6. do not connect the evaluator to owner hardware while AgentOS P0 blockers remain unresolved.
 
 ### P1-1 — PRS core hygiene
 - keep PR #23 independent of PR #17;
 - preserve dependency-light deterministic v0.1 evaluator;
-- address Node action deprecation only as maintenance, not as an assurance-semantic change.
+- track Node action deprecation as maintenance, not assurance semantics.
 
 ## Execution log
 
 - [x] fresh PRS/AgentOS scan.
 - [x] confirmed AgentOS #104 still exact `83a58b8...`.
-- [x] confirmed PRS #17 Green identity hardening exact state.
 - [x] reconciled PR #23 against current main without rebase.
-- [x] recorded PR #23 current-main comparison on PR #23.
+- [x] recorded PR #23 comparison on PR #23.
 - [x] created owner physical Windows Level-2 acceptance contract.
-- [x] current-head Linux CI passed with 129 tests.
-- [x] current-head validation artifact ID/hash recorded.
-- [ ] current-head hosted Windows general validation job final conclusion pending at time of this reconciliation.
-- [x] batch replenished with machine-readable physical evidence-contract work if AgentOS remains unchanged.
+- [x] exact current-head Linux CI passed with 129 tests.
+- [x] exact current-head hosted Windows evidence job passed.
+- [x] validation and hosted-Windows artifact IDs/hashes recorded.
+- [x] physical acceptance remains explicitly unproven despite hosted CI success.
+- [x] batch replenished with machine-readable physical evidence-contract work.
 
 ## Replenishment rule
 
