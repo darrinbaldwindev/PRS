@@ -13,6 +13,7 @@ This archive records the independent Lite-capacity PRS-style adversarial review 
 - `docs/oversight/prs_adversarial_review_2026-09-13.md` — consolidated review handoff produced from five independent Lite reviewers and one reducer.
 - `docs/oversight/pr-104-windows-worker-verification-2026-09-13.md` — read-only verification of PR #104 at exact head `2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7`.
 - `docs/oversight/pr-104-verification-evidence-2026-09-13.log` — sanitized metadata, source-inspection findings, disposition, and redaction record.
+- `docs/oversight/pr-104-false-green-adversarial-review-2026-09-14.md` — independent Lite-capacity false-GREEN review at exact head `7f82f1d76d6182b9acbe6ce2595850e8527cf597`.
 
 ## Provenance
 
@@ -33,5 +34,7 @@ The GitHub connector configuration was enabled only to perform this user-request
 Before any PR, security, production, merge, release, or readiness conclusion, independently obtain and inspect the authoritative PR metadata, exact commit/diff, target-environment CI and fault-injection evidence, consent/authorization controls, durable recovery state, replay/idempotency behavior, exact correlation traces, control-plane boundaries, and—if in scope—commercial-flow independence evidence.
 
 The latest verification preserves the same boundary: the bounded implementation and component-test slice is present, but the PR remains Draft/Amber because runtime execution is deliberately disabled and physical Windows, end-to-end recovery, and independent exact-head assurance remain unverified.
+
+The 2026-09-14 adversarial review further classifies the current state as **FALSE-GREEN / REVIEW_REQUIRED with HIGH risk**. It identifies unresolved process-boundary, malformed-output, cancellation, postcondition, crash/replay, Windows-runtime, and evidence-provenance gaps. It does not approve, merge, deploy, or certify readiness.
 
 > This archive is a review record, not proof of runtime correctness, security, production readiness, or release readiness.
