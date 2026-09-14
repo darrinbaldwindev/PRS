@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "sequence": 16,
+  "records": {
+    "project": {},
+    "workspace": {},
+    "agent": {
+      "agentos:overseer": {
+        "id": "agentos:overseer",
+        "role": "overseer",
+        "system": true,
+        "primary": true,
+        "status": "online",
+        "identity": "AgentOS Overseer",
+        "createdAt": "2026-09-09T22:23:06.561Z",
+        "type": "agent",
+        "updatedAt": "2026-09-09T22:23:06.563Z",
+        "revision": 3,
+        "lastActivatedAt": "2026-09-09T22:23:06.562Z"
+      }
+    },
+    "run": {},
+    "event": {
+      "event_4": {
+        "agentId": "agentos:overseer",
+        "eventType": "agentos.boot.completed",
+        "overseerCreated": true,
+        "availableModelCount": 0,
+        "id": "event_4",
+        "type": "event",
+        "createdAt": "2026-09-09T22:23:06.564Z",
+        "updatedAt": "2026-09-09T22:23:06.564Z",
+        "revision": 5
+      },
+      "event_15": {
+        "agentId": "agentos:overseer",
+        "eventType": "agentos.manual-wake.completed",
+        "taskId": "task-A",
+        "wakeTraceId": "67d25edf-680e-46de-80ef-cf7c13b790a2",
+        "missionId": "mission-A",
+        "projectId": "agentos-local",
+        "workerId": "agentos:deterministic-skill-agent",
+        "budgetReservationId": "budget-89f326f1-75b0-4859-ad81-82d5cb0bb042",
+        "status": "COMPLETED",
+        "greenDisposition": "pass",
+        "id": "event_15",
+        "type": "event",
+        "createdAt": "2026-09-09T22:23:06.595Z",
+        "updatedAt": "2026-09-09T22:23:06.595Z",
+        "revision": 16
+      }
+    },
+    "artifact": {
+      "task-A": {
+        "id": "task-A",
+        "artifactType": "dispatch.task",
+        "payload": {
+          "task_id": "task-A",
+          "mission_id": "mission-A",
+          "project_id": "agentos-local",
+          "issuer": "agentos:overseer",
+          "target": "agentos:project-overseer",
+          "objective": "bounded deterministic fixture",
+          "priority": "high",
+          "scope": [
+            "local-runtime"
+          ],
+          "constraints": [
+            "read-only"
+          ],
+          "consent_mode": "PRE_AUTHORIZED",
+          "required_capabilities": [
+            "repository:read"
+          ],
+          "authority": {
+            "action": "execute",
+            "granted_capabilities": [
+              "repository:read"
+            ]
+          },
+          "acceptance_criteria": [
+            "bounded action verified"
+          ],
+          "status": "completed",
+          "created_at": "2026-09-09T22:23:06.524Z",
+          "wake_trace_id": "67d25edf-680e-46de-80ef-cf7c13b790a2",
+          "scheduler_wake_at": "2026-09-09T22:23:06.565Z",
+          "delivery_id": "delivery-A",
+          "request_id": "request-A",
+          "target_host_id": "host-d34b58c7-287a-4d54-8181-a95c6dfab43c",
+          "actor_id": "owner-fixture",
+          "admitted_by": "agentos:overseer",
+          "authority_admitted": true,
+          "environment": "DRY_RUN",
+          "pickup_state": "QUEUED",
+          "dispatch_sha": 6,
+          "evidence": {
+            "source_agent": "agentos:deterministic-skill-agent",
+            "worker_id": "agentos:deterministic-skill-agent",
+            "worker_output": {
+              "action": "bounded-local-project-overseer-cycle",
+              "task_id": "task-A",
+              "wake_trace_id": "67d25edf-680e-46de-80ef-cf7c13b790a2",
+              "scope": [
+                "local-runtime"
+              ],
+              "mode": "DRY_RUN"
+            },
+            "worker_latency_ms": 0,
+            "implemented": [
+              "executed one bounded local Project Overseer control cycle through the registered deterministic worker"
+            ],
+            "verification": [
+              "canonical runner completed claimed to working to verification",
+              "issuer, consent mode and required/granted capability match were validated before execution",
+              "registered worker was enabled, executable and matched every required capability",
+              "DRY_RUN/no-production-credential constraints were preserved"
+            ],
+            "evidence": [
+              "local:wake:67d25edf-680e-46de-80ef-cf7c13b790a2",
+              "local:task:task-A",
+              "worker:agentos:deterministic-skill-agent",
+              "budget:reservation:budget-89f326f1-75b0-4859-ad81-82d5cb0bb042"
+            ],
+            "repository_commit": "local-runtime",
+            "next_action": "await Green verification before completion"
+          }
+        },
+        "type": "artifact",
+        "createdAt": "2026-09-09T22:23:06.525Z",
+        "updatedAt": "2026-09-09T22:23:06.589Z",
+        "revision": 10
+      },
+      "response-awaiting-green:task-A": {
+        "id": "response-awaiting-green:task-A",
+        "artifactType": "project-overseer.response",
+        "payload": {
+          "mission_id": "mission-A",
+          "source_agent": "agentos:deterministic-skill-agent",
+          "wake_trace_id": "67d25edf-680e-46de-80ef-cf7c13b790a2",
+          "status": "AWAITING_GREEN",
+          "started_at": "2026-09-09T22:23:06.524Z",
+          "completed_at": null,
+          "repository_commit": "local-runtime",
+          "inspection_summary": "worker returned; awaiting Green hard-gate before final completion",
+          "work_claimed": [
+            "bounded deterministic fixture"
+          ],
+          "work_implemented": [
+            "executed one bounded local Project Overseer control cycle through the registered deterministic worker"
+          ],
+          "verification": [
+            "canonical runner completed claimed to working to verification",
+            "issuer, consent mode and required/granted capability match were validated before execution",
+            "registered worker was enabled, executable and matched every required capability",
+            "DRY_RUN/no-production-credential constraints were preserved",
+            "budget reconciled: RECONCILED"
+          ],
+          "evidence": [
+            "local:wake:67d25edf-680e-46de-80ef-cf7c13b790a2",
+            "local:task:task-A",
+            "worker:agentos:deterministic-skill-agent",
+            "budget:reservation:budget-89f326f1-75b0-4859-ad81-82d5cb0bb042",
+            "worker-output:{\"action\":\"bounded-local-project-overseer-cycle\",\"task_id\":\"task-A\",\"wake_trace_id\":\"67d25edf-680e-46de-80ef-cf7c13b790a2\",\"scope\":[\"local-runtime\"],\"mode\":\"DRY_RUN\"}"
+          ],
+          "blockers": [],
+          "escalations": [],
+          "next_action": "Green evaluateTaskCompletion"
+        },
+        "type": "artifact",
+        "createdAt": "2026-09-09T22:23:06.590Z",
+        "updatedAt": "2026-09-09T22:23:06.590Z",
+        "revision": 11
+      },
+      "green-disposition:task-A": {
+        "id": "green-disposition:task-A",
+        "artifactType": "green.disposition",
+        "payload": {
+          "task_id": "task-A",
+          "timestamp": "2026-09-09T22:23:06.591Z",
+          "assurance_owner": "green-agent",
+          "read_only": true,
+          "worker_claimed_complete": true,
+          "task_identity": {
+            "status": "verified",
+            "claimed_task_id": "task-A"
+          },
+          "acceptance_criteria": [
+            {
+              "criterion": "bounded action verified",
+              "status": "verified",
+              "evidence_ref": {
+                "criterion": "bounded action verified",
+                "status": "verified",
+                "source": "local-wake-bounded-deterministic"
+              }
+            }
+          ],
+          "implementation": {
+            "status": "verified",
+            "evidence_ref": {
+              "status": "verified",
+              "source": "deterministic-local-worker"
+            }
+          },
+          "tests": {
+            "status": "verified",
+            "evidence_ref": {
+              "status": "verified",
+              "source": "bounded-local-verification-list"
+            }
+          },
+          "authorization": {
+            "status": "verified",
+            "evidence_ref": {
+              "status": "verified",
+              "unauthorized_changes": [],
+              "project_id": "agentos-local",
+              "consent_mode": "PRE_AUTHORIZED"
+            }
+          },
+          "side_effects": [],
+          "gaps": [],
+          "disposition": "pass",
+          "task_status": "green_verified_complete",
+          "advance_to_prs": true,
+          "remediation_required": false,
+          "failures": [],
+          "production_promotion_allowed": false
+        },
+        "type": "artifact",
+        "createdAt": "2026-09-09T22:23:06.592Z",
+        "updatedAt": "2026-09-09T22:23:06.592Z",
+        "revision": 12
+      },
+      "response:task-A": {
+        "id": "response:task-A",
+        "artifactType": "project-overseer.response",
+        "payload": {
+          "mission_id": "mission-A",
+          "source_agent": "agentos:deterministic-skill-agent",
+          "wake_trace_id": "67d25edf-680e-46de-80ef-cf7c13b790a2",
+          "status": "COMPLETED",
+          "started_at": "2026-09-09T22:23:06.524Z",
+          "completed_at": "2026-09-09T22:23:06.593Z",
+          "repository_commit": "local-runtime",
+          "inspection_summary": "Green PASS; bounded local cycle completed",
+          "work_claimed": [
+            "bounded deterministic fixture"
+          ],
+          "work_implemented": [
+            "executed one bounded local Project Overseer control cycle through the registered deterministic worker"
+          ],
+          "verification": [
+            "canonical runner completed claimed to working to verification",
+            "issuer, consent mode and required/granted capability match were validated before execution",
+            "registered worker was enabled, executable and matched every required capability",
+            "DRY_RUN/no-production-credential constraints were preserved",
+            "budget reconciled: RECONCILED",
+            "Green evaluateTaskCompletion disposition=pass"
+          ],
+          "evidence": [
+            "local:wake:67d25edf-680e-46de-80ef-cf7c13b790a2",
+            "local:task:task-A",
+            "worker:agentos:deterministic-skill-agent",
+            "budget:reservation:budget-89f326f1-75b0-4859-ad81-82d5cb0bb042",
+            "worker-output:{\"action\":\"bounded-local-project-overseer-cycle\",\"task_id\":\"task-A\",\"wake_trace_id\":\"67d25edf-680e-46de-80ef-cf7c13b790a2\",\"scope\":[\"local-runtime\"],\"mode\":\"DRY_RUN\"}",
+            "green:disposition:pass",
+            "green:task_status:green_verified_complete"
+          ],
+          "blockers": [],
+          "escalations": [],
+          "next_action": "await Green verification before completion",
+          "green_disposition": "pass"
+        },
+        "type": "artifact",
+        "createdAt": "2026-09-09T22:23:06.594Z",
+        "updatedAt": "2026-09-09T22:23:06.594Z",
+        "revision": 13
+      },
+      "remote-receipt:delivery-A": {
+        "id": "remote-receipt:delivery-A",
+        "artifactType": "remote.execution.receipt",
+        "payload": {
+          "schema_version": 1,
+          "delivery_id": "delivery-A",
+          "request_id": "request-A",
+          "project_id": "agentos-local",
+          "mission_id": "mission-A",
+          "task_id": "task-A",
+          "wake_trace_id": "67d25edf-680e-46de-80ef-cf7c13b790a2",
+          "host_id": "host-d34b58c7-287a-4d54-8181-a95c6dfab43c",
+          "worker_id": "agentos:deterministic-skill-agent",
+          "status": "COMPLETED",
+          "budget_status": "RECONCILED",
+          "code_identity": "be2135ba8e0f28d72b2c22cdb7e1e25fe4fab2a6",
+          "evidence": [
+            "local:wake:67d25edf-680e-46de-80ef-cf7c13b790a2",
+            "local:task:task-A",
+            "worker:agentos:deterministic-skill-agent",
+            "budget:reservation:budget-89f326f1-75b0-4859-ad81-82d5cb0bb042",
+            "worker-output:{\"action\":\"bounded-local-project-overseer-cycle\",\"task_id\":\"task-A\",\"wake_trace_id\":\"67d25edf-680e-46de-80ef-cf7c13b790a2\",\"scope\":[\"local-runtime\"],\"mode\":\"DRY_RUN\"}",
+            "green:disposition:pass",
+            "green:task_status:green_verified_complete"
+          ],
+          "created_at": "2026-09-09T22:23:06.594Z",
+          "actor_id": "owner-fixture",
+          "issuer": "agentos:overseer",
+          "config_identity": "b8fa1c0bdfd757f6f88280cde111157157a19c7834edfeee127fe5315d0a621b",
+          "code_dirty": false,
+          "claimed_at": "2026-09-09T22:23:06.541Z",
+          "started_at": "2026-09-09T22:23:06.524Z",
+          "completed_at": "2026-09-09T22:23:06.593Z",
+          "budget_reservation_id": "budget-89f326f1-75b0-4859-ad81-82d5cb0bb042",
+          "green_disposition": "pass",
+          "next_action": "independent_upstream_reconciliation"
+        },
+        "type": "artifact",
+        "createdAt": "2026-09-09T22:23:06.594Z",
+        "updatedAt": "2026-09-09T22:23:06.594Z",
+        "revision": 14
+      }
+    }
+  }
+}

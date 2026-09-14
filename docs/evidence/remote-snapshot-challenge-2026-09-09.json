@@ -1,0 +1,401 @@
+{
+  "checks": [
+    {
+      "check_id": "correlation_delivery_id",
+      "evidence": [
+        "assignment:delivery_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_request_id",
+      "evidence": [
+        "assignment:request_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_project_id",
+      "evidence": [
+        "assignment:project_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_mission_id",
+      "evidence": [
+        "assignment:mission_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_task_id",
+      "evidence": [
+        "assignment:task_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_wake_trace_id",
+      "evidence": [
+        "assignment:wake_trace_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_host_id",
+      "evidence": [
+        "assignment:host_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_worker_id",
+      "evidence": [
+        "assignment:worker_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_code_identity",
+      "evidence": [
+        "assignment:code_identity"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_actor_id",
+      "evidence": [
+        "assignment:actor_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_issuer",
+      "evidence": [
+        "assignment:issuer"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "correlation_config_identity",
+      "evidence": [
+        "assignment:config_identity"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "receipt_schema",
+      "evidence": [
+        "receipt:schema_version"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "durable_receipt",
+      "evidence": [
+        "persisted:remote_receipt"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "completed_status",
+      "evidence": [
+        "receipt:status"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "budget_reconciled",
+      "evidence": [
+        "receipt:budget_status"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "green_pass",
+      "evidence": [
+        "green:disposition"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "green_task_id",
+      "evidence": [
+        "green:task_id"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "green_mission_id",
+      "evidence": [
+        "green:mission_id"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "green_wake_trace_id",
+      "evidence": [
+        "green:wake_trace_id"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "green_worker_id",
+      "evidence": [
+        "green:worker_id"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "green_code_identity",
+      "evidence": [
+        "green:code_identity"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "resolved_completion_evidence",
+      "evidence": [
+        "persisted:evidence_references"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "exact_code_identity",
+      "evidence": [
+        "assignment:exact_head_and_clean_code"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "durable_result",
+      "evidence": [
+        "persisted:final_result"
+      ],
+      "severity": "info",
+      "status": "pass"
+    },
+    {
+      "check_id": "single_correlated_execution",
+      "evidence": [
+        "persisted:execution_records"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "fresh_correlated_provenance",
+      "evidence": [
+        "persisted:evidence_content_and_provenance"
+      ],
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "task_capability_health",
+      "evidence": [
+        "capability:task_specific_fresh_health"
+      ],
+      "severity": "high",
+      "status": "fail"
+    }
+  ],
+  "disposition": "failed",
+  "findings": [
+    {
+      "check_id": "green_mission_id",
+      "evidence": [
+        "green:mission_id"
+      ],
+      "finding_id": "bridge-green_mission_id",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "green_wake_trace_id",
+      "evidence": [
+        "green:wake_trace_id"
+      ],
+      "finding_id": "bridge-green_wake_trace_id",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "green_worker_id",
+      "evidence": [
+        "green:worker_id"
+      ],
+      "finding_id": "bridge-green_worker_id",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "green_code_identity",
+      "evidence": [
+        "green:code_identity"
+      ],
+      "finding_id": "bridge-green_code_identity",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "resolved_completion_evidence",
+      "evidence": [
+        "persisted:evidence_references"
+      ],
+      "finding_id": "bridge-resolved_completion_evidence",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "single_correlated_execution",
+      "evidence": [
+        "persisted:execution_records"
+      ],
+      "finding_id": "bridge-single_correlated_execution",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "fresh_correlated_provenance",
+      "evidence": [
+        "persisted:evidence_content_and_provenance"
+      ],
+      "finding_id": "bridge-fresh_correlated_provenance",
+      "severity": "high",
+      "status": "fail"
+    },
+    {
+      "check_id": "task_capability_health",
+      "evidence": [
+        "capability:task_specific_fresh_health"
+      ],
+      "finding_id": "bridge-task_capability_health",
+      "severity": "high",
+      "status": "fail"
+    }
+  ],
+  "observation": {
+    "agentos_remote_head": "ea2e0d88cc178786f2c94e99c20020d8a6fab079",
+    "assignment_sha256": "6e76622d01cae98cb3d37a46f7952b2821dde53e815912ca6cc829d55f8745f7",
+    "boundary": "Recaptured Linux local fixture; no remote transport; no physical Windows acceptance",
+    "local_code_head": "be2135ba8e0f28d72b2c22cdb7e1e25fe4fab2a6",
+    "observed_at": "2026-09-09T22:23:06.597Z",
+    "scheduler_claim": "COMPLETED",
+    "source_tree": "c4418b517c95a23bf76df1cfa1f28cfe82f52848"
+  },
+  "production_promotion_allowed": false,
+  "provenance": {
+    "check_outcomes": [
+      "correlation_delivery_id:pass",
+      "correlation_request_id:pass",
+      "correlation_project_id:pass",
+      "correlation_mission_id:pass",
+      "correlation_task_id:pass",
+      "correlation_wake_trace_id:pass",
+      "correlation_host_id:pass",
+      "correlation_worker_id:pass",
+      "correlation_code_identity:pass",
+      "correlation_actor_id:pass",
+      "correlation_issuer:pass",
+      "correlation_config_identity:pass",
+      "receipt_schema:pass",
+      "durable_receipt:pass",
+      "completed_status:pass",
+      "budget_reconciled:pass",
+      "green_pass:pass",
+      "green_task_id:pass",
+      "green_mission_id:fail",
+      "green_wake_trace_id:fail",
+      "green_worker_id:fail",
+      "green_code_identity:fail",
+      "resolved_completion_evidence:fail",
+      "exact_code_identity:pass",
+      "durable_result:pass",
+      "single_correlated_execution:fail",
+      "fresh_correlated_provenance:fail",
+      "task_capability_health:fail"
+    ],
+    "evaluator_version": "offline-bridge-0.2",
+    "evidence_references": [
+      "assignment:actor_id",
+      "assignment:code_identity",
+      "assignment:config_identity",
+      "assignment:delivery_id",
+      "assignment:exact_head_and_clean_code",
+      "assignment:host_id",
+      "assignment:issuer",
+      "assignment:mission_id",
+      "assignment:project_id",
+      "assignment:request_id",
+      "assignment:task_id",
+      "assignment:wake_trace_id",
+      "assignment:worker_id",
+      "capability:task_specific_fresh_health",
+      "green:code_identity",
+      "green:disposition",
+      "green:mission_id",
+      "green:task_id",
+      "green:wake_trace_id",
+      "green:worker_id",
+      "persisted:evidence_content_and_provenance",
+      "persisted:evidence_references",
+      "persisted:execution_records",
+      "persisted:final_result",
+      "persisted:remote_receipt",
+      "receipt:budget_status",
+      "receipt:schema_version",
+      "receipt:status"
+    ],
+    "observed_at": "2026-09-09T22:23:06.597Z"
+  },
+  "runtime_integration_enabled": false,
+  "scope": "offline_bridge_snapshot_consistency",
+  "snapshot_reader": {
+    "execution_census_inferred": false,
+    "green_correlation_inferred": false,
+    "inspected_artifact_ids": [
+      "remote-receipt:delivery-A",
+      "response:task-A",
+      "green-disposition:task-A"
+    ],
+    "load_error": null,
+    "read_only": true,
+    "state_sha256": "64d4af6c20132b95f0269b0194c6fc537258e19a9b819a32af19b2cce37af263",
+    "unresolved_evidence_refs": [
+      "local:wake:67d25edf-680e-46de-80ef-cf7c13b790a2",
+      "local:task:task-A",
+      "worker:agentos:deterministic-skill-agent",
+      "budget:reservation:budget-89f326f1-75b0-4859-ad81-82d5cb0bb042",
+      "worker-output:{\"action\":\"bounded-local-project-overseer-cycle\",\"task_id\":\"task-A\",\"wake_trace_id\":\"67d25edf-680e-46de-80ef-cf7c13b790a2\",\"scope\":[\"local-runtime\"],\"mode\":\"DRY_RUN\"}",
+      "green:disposition:pass",
+      "green:task_status:green_verified_complete"
+    ],
+    "version": "0.1"
+  }
+}

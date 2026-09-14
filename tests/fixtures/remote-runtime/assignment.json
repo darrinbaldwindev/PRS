@@ -1,0 +1,17 @@
+{
+  "delivery_id": "delivery-A",
+  "request_id": "request-A",
+  "project_id": "agentos-local",
+  "mission_id": "mission-A",
+  "task_id": "task-A",
+  "actor_id": "owner-fixture",
+  "issuer": "agentos:overseer",
+  "host_id": "host-d34b58c7-287a-4d54-8181-a95c6dfab43c",
+  "worker_id": "agentos:deterministic-skill-agent",
+  "code_identity": "be2135ba8e0f28d72b2c22cdb7e1e25fe4fab2a6",
+  "config_identity": "b8fa1c0bdfd757f6f88280cde111157157a19c7834edfeee127fe5315d0a621b",
+  "required_capabilities": [
+    "repository:read"
+  ],
+  "wake_trace_id": "67d25edf-680e-46de-80ef-cf7c13b790a2"
+}
