@@ -1,13 +1,25 @@
 # PRS Vertical Execution Batch
 
 **Batch:** PRS-VERTICAL-2026-09-14-01  
-**Created:** 2026-09-14 Australia/Brisbane  
-**Canonical PRS base at scan:** `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207`  
+**Reconciled:** 2026-09-14 Australia/Brisbane  
+**Canonical PRS main at rescan:** `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207`  
 **Execution mode:** fresh scan -> prioritize -> execute -> exact-head verify -> rescan -> replenish -> durable log
 
 ## Mission
 
 Maximize useful PRS assurance progress per owner interaction while preserving independent evidence boundaries. AgentOS owns execution/orchestration; PRS challenges claims, detects false-GREEN conditions, preserves provenance, and withholds assurance where evidence is insufficient.
+
+## Automatic trigger
+
+`cont`, `continue`, `continue autonomously`, and `continue autonomously vertically` mean:
+1. fresh-scan PRS and every linked exact target needed by the current P0;
+2. reconcile this batch file against those live heads;
+3. execute the fullest safe useful vertical batch without asking for already-authorized confirmations;
+4. verify exact changed state and CI/evidence;
+5. fresh-scan again;
+6. convert moved-head evidence to historical status;
+7. replenish this same batch with the next highest-value unresolved tasks;
+8. durably log the result to the relevant PRS issue/PR and Overseer coordination source.
 
 ## Hard governance boundaries
 
@@ -17,86 +29,130 @@ Maximize useful PRS assurance progress per owner interaction while preserving in
 - Hosted/CI Windows evidence is not owner physical Windows acceptance.
 - Worker success, filesystem state, or receipt presence alone never implies Green/PRS certification or overall completion.
 
-## Fresh scan inputs
+## Fresh state after execution
 
 ### PRS
-- `main`: `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207` (`docs: adopt portfolio vertical batch execution doctrine`).
-- Canonical doctrine: `.overseer/VERTICAL-BATCH-ADOPTION.md` requires this batch cycle.
-- Open assurance lineages: PR #17 adversarial probes; PR #23 bounded v0.1 adapter/package hardening; older #15/#16/#19/#22 remain draft and must not be treated as canonical without reconciliation.
+- `main`: `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207`.
+- PR #17 adversarial head: `8479ae148694af24ae5a492036f3b5cd56fd8c5c` — OPEN / DRAFT / UNMERGED.
+- All 12 pull-request workflows associated with PR #17 head `8479ae...` completed SUCCESS as execution runs.
+- PR #23 remains independent bounded v0.1 adapter/package hardening; do not conflate it with AgentOS assurance.
 
-### AgentOS linked targets
-- PR #104 current head at scan: `7f82f1d76d6182b9acbe6ce2595850e8527cf597`.
-- PR #104 itself records independent Green FAIL on the project-file writer ownership boundary and keeps project-file mutation AMBER/not enabled.
-- PR #91 current head at scan: `ea2e0d88cc178786f2c94e99c20020d8a6fab079`.
-- PR #101 remains at `d91abaecf602d7ef223c4888f10fa9361677302e`; existing PRS evidence for this exact host-status repair remains bounded historical/current-to-that-head only.
+### AgentOS linked target
+- PR #104 exact current head at end-of-batch rescan: `71c463a77b31ebeac2bfe00da13c684512daccf7`.
+- Exact source tree challenged: `b7f8ce749552aad03002d4d48806232d47f2a435`.
+- `runtime/project-file-writer.mjs` SHA256: `bf36ef114c6db43e3b79be5d28a5850ead70f10156de390f249ec536e63cb12c`.
+- PR #104 remains DRAFT / UNMERGED. No scheduler/local-wake PowerShell production execution is enabled.
 
-## Priority queue
+## Completed P0 in this batch
 
-### P0-A — Reproduce current project-file ownership false-GREEN race
-**Goal:** independently reproduce on PRS adversarial lineage that AgentOS PR #104 can mutate/persist success evidence before discovering lock ownership loss at release.
+### P0-A — Normal project-file commit ownership
+**Result: DEFECT REPRODUCED.**
 
-Tasks:
-1. Read exact Git object `runtime/project-file-writer.mjs` at AgentOS `7f82f1d...`.
-2. Confirm publish order: lock assertion -> target recheck -> rename -> post-write verify -> receipt persist -> lock retirement.
-3. Add immutable PRS adversarial case using existing `afterLockValidation` release hook to replace the writer's lock with a successor after mutation/receipt but before retirement completes.
-4. Assert all of the following together:
-   - writer returns/fails with `PROJECT_FILE_LOCK_RECOVERY_REQUIRED` at release;
-   - target was nevertheless mutated;
-   - success receipt was already persisted;
-   - successor lock survives;
-   - therefore mutation + success receipt do not prove continuously held ownership through commit.
-5. Run exact-target probe in CI and record exact PRS/AgentOS SHAs, result, run IDs and artifacts.
+PRS immutable probe: `scripts/challenge-agentos-project-file-commit-ownership.mjs`.
 
-**Disposition target:** defect reproduced -> fail closed / no production promotion; never overall GREEN.
+Observed on exact AgentOS `71c463a...`:
+- target mutation occurred;
+- success receipt persisted;
+- successor lock survived;
+- only afterward did release fail with `PROJECT_FILE_LOCK_RECOVERY_REQUIRED`.
 
-### P0-B — Refresh issue #20 to current exact AgentOS target
-1. Supersede stale target `6805b713...` with `7f82f1d...` after probe evidence exists.
-2. Preserve older evidence as historical rather than deleting it.
-3. Add the continuous-ownership-through-publish/receipt condition explicitly to acceptance.
-4. Record that owner physical Windows, scheduler/local-wake owner-machine pickup, power-loss durability and complete recovery remain unproven.
+Therefore success receipt + verified postimage do not prove continuously held ownership through commit.
 
-### P0-C — Challenge recovery path for the same ownership gap
-1. Inspect `recoverPreparedIfPresent` ordering at exact target.
-2. Determine whether recovery publish also lacks continuous lock ownership across decision -> target recheck -> rename -> receipt.
-3. Add a bounded negative case if reproducible with existing hooks; otherwise record exact untestable seam and evidence needed.
+### P0-B — Recovery project-file commit ownership
+**Result: DEFECT REPRODUCED.**
 
-### P0-D — Exact-head assurance state reconciliation
-1. Fresh-check AgentOS PR #104 after probe work; if its head moved, do not certify the new head with old evidence.
-2. Fresh-check PRS PR #17 exact head and its CI.
-3. Update PR #17 body with current exact evidence and explicit limitations.
-4. Update Overseer issue #49 with the bounded result.
+Prepared-write recovery reproduced the same ordering defect:
+- recovery mutation occurred;
+- success receipt persisted;
+- successor lock survived;
+- only afterward did lock release detect ownership loss.
 
-### P1-A — PRS core hygiene
-1. Keep PR #23 independent of PR #17 and verify its head remains exact/CI-backed.
-2. Record PR #22 as superseded by canonical main/PR #23 where appropriate; do not rebase or merge it autonomously.
-3. Preserve v0.1 dependency-light/offline evaluator boundary.
+### P0-C — Exact-head verification evidence
+GitHub Actions `Validate AgentOS project-file current head`:
+- run #8 / `34810516744`: SUCCESS as assurance execution;
+- PR validation merge commit: `acc757418e52d57f7a4cb18986d1f5e36d4cf4ea`;
+- probe disposition: `DEFECT_REPRODUCED`;
+- defect count: `2`;
+- evidence artifact: `prs-agentos-project-file-current-head-34810516744-1`;
+- artifact ID: `10334129980`;
+- artifact zip SHA256: `6760fe9e80ca32482dcc214924cc5e844656935df71e911b38a67a81f054e489`.
 
-### P1-B — Physical Windows acceptance contract
-Define the minimum independent evidence bundle for owner-laptop acceptance:
-- exact AgentOS code identity;
-- owner-machine host identity;
-- real PowerShell adapter execution;
-- scheduler/local-wake pickup correlation;
-- project-file mutation and receipt provenance;
-- crash/recovery case;
-- executable provenance/drift check;
-- Green then PRS independent qualification;
-- explicit negative evidence and fail-closed behavior.
+A SUCCESS workflow means the assurance probes executed correctly. It does not upgrade the target to PASS/GREEN.
 
-Do not substitute hosted Windows Server CI for this gate.
+### P0-D — Durable reconciliation
+Completed:
+- PRS issue #20 retargeted to exact AgentOS `71c463a...`, with continuous-ownership cases 25/26 explicitly recorded as falsified.
+- PRS PR #17 body reconciled to exact PRS/AgentOS heads and evidence.
+- Overseer issue #49 updated with exact defect/evidence and limitations.
+- end-of-batch rescan confirmed AgentOS #104 remains at exact tested head `71c463a...`.
+
+## Current disposition
+
+For AgentOS PR #104 exact head `71c463a...`:
+- ordinary bounded containment/preimage/idempotency/recovery-governance negative cases: execution evidence PASS;
+- continuous ownership through normal publish + receipt + release: **FAIL**;
+- continuous ownership through recovery publish + receipt + release: **FAIL**;
+- project-file mutation production promotion: **NOT ALLOWED**;
+- overall AgentOS GREEN: **NOT ISSUED**.
+
+## Replenished priority queue
+
+### P0-1 — Challenge the next AgentOS ownership repair immediately
+On the next AgentOS #104 head change:
+1. fresh-fetch the exact head before reading claims;
+2. inspect whether a kernel-enforced ownership primitive spans final publish/recovery, receipt persistence and commit release;
+3. retarget the immutable PRS commit-ownership probe only after reviewing the exact implementation;
+4. reproduce both normal and recovery races;
+5. require the old failing fixtures to become negative-case PASS without weakening them;
+6. record exact Git/tree/module identity and artifact hashes;
+7. keep production promotion blocked until independent Green and PRS both pass the repaired exact head.
+
+### P0-2 — Owner physical Windows acceptance contract
+Maintain a separate evidence gate requiring all of:
+- exact AgentOS commit/tree/build identity;
+- owner-machine host identity and explicit supervised owner consent;
+- real PowerShell adapter execution on the owner's laptop;
+- scheduler/local-wake pickup with exact project/mission/task/wake/host/worker correlation;
+- bounded project-file mutation with preimage/postimage and durable receipt;
+- intentional interruption/crash and correlated recovery evidence;
+- executable provenance and drift rejection;
+- no unsupported Windows lock primitive fallback;
+- exact result/receipt/Green/PRS correlation;
+- Green qualification followed by independent PRS qualification;
+- evidence bundle copied off the worker path for independent review.
+
+Hosted Windows CI must remain labelled hosted evidence only.
+
+### P0-3 — Admission/authentication seam
+Fresh-scan AgentOS PR #104/#91 before execution. Challenge the current authenticated transport / canonical grant lookup / task-field binding path. No production remote execution is acceptable while authenticated admission identity remains only a composition seam.
+
+### P1-1 — PRS core hygiene
+- fresh-check PR #23 against current `main` before any further change;
+- keep PR #22 historical/superseded where canonical main already absorbed its intent;
+- preserve one dependency-light/offline core evaluator and deterministic provenance;
+- do not mix evaluator cleanup into PR #17.
+
+### P1-2 — Stale lineage inventory
+Inventory PR #15/#16/#19/#22 against current canonical main. Classify each as still-needed, superseded, or evidence-only. Do not close/merge/rebase autonomously; record recommendations with exact overlap evidence.
 
 ## Execution log
 
-- [x] Fresh PRS scan completed.
-- [x] Fresh linked AgentOS PR #104/#91/#101 state scanned.
-- [x] Current AgentOS project-file writer exact source inspected.
-- [x] Current source ordering confirms no kernel-held ownership primitive spans final ownership validation through publish/receipt.
-- [ ] P0-A executable PRS reproduction added and verified.
-- [ ] P0-B issue #20 refreshed.
-- [ ] P0-C recovery path challenged.
-- [ ] P0-D exact-head state reconciled and portfolio coordination updated.
-- [ ] P1 hygiene/physical acceptance evidence contract advanced as remaining batch capacity permits.
+- [x] fresh PRS scan before batch.
+- [x] fresh AgentOS #104 exact-head scan.
+- [x] moved target detected (`7f82f1d...` -> `71c463a...`) before assurance claim.
+- [x] exact current project-file source inspected.
+- [x] immutable normal-publish commit-ownership adversarial probe added.
+- [x] immutable prepared-recovery commit-ownership adversarial probe added.
+- [x] exact-head CI executed.
+- [x] normal ownership defect independently reproduced.
+- [x] recovery ownership defect independently reproduced.
+- [x] evidence artifact/hash recorded.
+- [x] PRS issue #20 reconciled.
+- [x] PRS PR #17 reconciled.
+- [x] Overseer issue #49 updated.
+- [x] end-of-batch AgentOS #104 rescan performed; target remained `71c463a...`.
+- [x] batch replenished with next P0/P1 tasks.
 
 ## Replenishment rule
 
-At the end of this batch, fresh-scan PRS and linked AgentOS heads again. Mark completed work with exact evidence, convert moved-head evidence to historical, and refill this same file with the next highest-value unresolved assurance tasks. `cont`, `continue`, `continue autonomously`, and `continue autonomously vertically` invoke the full cycle again.
+Every autonomous continuation starts from a fresh repo/head scan. Never assume this file's recorded heads are still current. Reconcile first, execute second, verify third, rescan fourth, then replenish again.
