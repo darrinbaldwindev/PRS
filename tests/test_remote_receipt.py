@@ -67,6 +67,14 @@ def test_borrowed_green_pass_fails(field):
     assert_failed(data, f"green_{field}")
 
 
+@pytest.mark.parametrize("field", ["delivery_id", "request_id", "host_id", "actor_id", "issuer", "config_identity"])
+@pytest.mark.parametrize("value", [None, "different-assignment"])
+def test_green_cannot_borrow_remaining_assignment_identity(field, value):
+    data = packet()
+    data["green"][field] = value
+    assert_failed(data, f"green_{field}")
+
+
 def test_blocked_green_and_unreconciled_budget_fail():
     data = packet()
     data["green"]["disposition"] = "blocked"
