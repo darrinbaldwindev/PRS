@@ -81,6 +81,22 @@ class EvaluatorCompatibilityTests(unittest.TestCase):
             ],
         )
 
+    def test_parent_traversal_path_is_rejected(self):
+        with self.assertRaises(InvalidSnapshot):
+            evaluate(BASE_SNAPSHOT, {**BASE_PATHS, "../escaped.txt": "bad"}, BASE_SNAPSHOT["captured_at"])
+
+    def test_absolute_path_is_rejected(self):
+        with self.assertRaises(InvalidSnapshot):
+            evaluate(BASE_SNAPSHOT, {**BASE_PATHS, "/tmp/escaped.txt": "bad"}, BASE_SNAPSHOT["captured_at"])
+
+    def test_windows_drive_path_is_rejected(self):
+        with self.assertRaises(InvalidSnapshot):
+            evaluate(BASE_SNAPSHOT, {**BASE_PATHS, "C:\\temp\\escaped.txt": "bad"}, BASE_SNAPSHOT["captured_at"])
+
+    def test_backslash_parent_traversal_is_rejected(self):
+        with self.assertRaises(InvalidSnapshot):
+            evaluate(BASE_SNAPSHOT, {**BASE_PATHS, "..\\escaped.txt": "bad"}, BASE_SNAPSHOT["captured_at"])
+
 
 if __name__ == "__main__":
     unittest.main()

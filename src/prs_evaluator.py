@@ -1,13 +1,13 @@
 """Compatibility adapter for the canonical dependency-light PRS evaluator.
 
-The canonical implementation lives at :mod:`prs.evaluator`.  This module keeps
+The canonical implementation lives at :mod:`prs.evaluator`. This module keeps
 legacy callers working without maintaining a second assurance decision path.
 """
 
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from tempfile import TemporaryDirectory
 from typing import Any, Iterable, Mapping
 
@@ -17,7 +17,7 @@ EVALUATOR_VERSION = VERSION
 
 
 class InvalidSnapshot(ValueError):
-    """Raised when required snapshot input is missing or malformed."""
+    """Raised when required snapshot input or compatibility evidence is unsafe."""
 
 
 def _snapshot_from_mapping(snapshot: Mapping[str, Any]) -> Snapshot:
@@ -31,24 +31,35 @@ def _snapshot_from_mapping(snapshot: Mapping[str, Any]) -> Snapshot:
         raise InvalidSnapshot(str(exc)) from exc
 
 
+def _safe_relative_path(raw_path: str) -> str:
+    """Return a canonical repository-relative path or reject unsafe evidence."""
+    candidate = raw_path.replace("\\", "/")
+    path = PurePosixPath(candidate)
+    if path.is_absolute() or ".." in path.parts or (len(candidate) >= 2 and candidate[1] == ":"):
+        raise InvalidSnapshot(f"unsafe repository evidence path: {raw_path}")
+    normalized = str(path)
+    if normalized in {"", "."}:
+        raise InvalidSnapshot(f"unsafe repository evidence path: {raw_path}")
+    return normalized
+
+
 def _normalise_paths(paths: Iterable[str] | Mapping[str, Any]) -> dict[str, str]:
     """Normalise legacy path evidence into deterministic in-memory file contents."""
+    result: dict[str, str] = {}
     if isinstance(paths, Mapping):
-        result: dict[str, str] = {}
-        for raw_path, value in paths.items():
-            if not isinstance(raw_path, str) or not raw_path.strip():
-                continue
-            if isinstance(value, str):
-                result[raw_path] = value
-            elif value is None:
-                result[raw_path] = "evidence\n"
-        return result
+        items = paths.items()
+    else:
+        items = ((raw_path, None) for raw_path in paths)
 
-    return {
-        raw_path: "evidence\n"
-        for raw_path in paths
-        if isinstance(raw_path, str) and raw_path.strip()
-    }
+    for raw_path, value in items:
+        if not isinstance(raw_path, str) or not raw_path.strip():
+            continue
+        relative = _safe_relative_path(raw_path)
+        if isinstance(value, str):
+            result[relative] = value
+        elif value is None:
+            result[relative] = "evidence\n"
+    return result
 
 
 def evaluate(
@@ -58,7 +69,7 @@ def evaluate(
 ) -> dict[str, Any]:
     """Evaluate legacy path evidence through the canonical PRS evaluator.
 
-    ``generated_at`` is retained only for compatibility.  PRS v0.1 provenance is
+    ``generated_at`` is retained only for compatibility. PRS v0.1 provenance is
     canonicalized to ``snapshot.captured_at``; callers attempting to supply a
     different timestamp are rejected instead of creating nondeterministic drift.
     """
