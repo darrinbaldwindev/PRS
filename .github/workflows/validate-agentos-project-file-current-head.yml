@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+          ref: 71c463a77b31ebeac2bfe00da13c684512daccf7
           path: validation-target/AgentOS
           persist-credentials: false
 
@@ -23,19 +23,22 @@ jobs:
         shell: bash
         run: |
           actual="$(git -C validation-target/AgentOS rev-parse HEAD)"
-          test "$actual" = "6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238"
+          test "$actual" = "71c463a77b31ebeac2bfe00da13c684512daccf7"
 
       - name: Challenge project-file mutation semantics
-        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS 71c463a77b31ebeac2bfe00da13c684512daccf7
 
       - name: Challenge project-file boundaries
-        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS 71c463a77b31ebeac2bfe00da13c684512daccf7
 
       - name: Challenge project-file recovery state
-        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS 71c463a77b31ebeac2bfe00da13c684512daccf7
 
       - name: Challenge recovery governance
-        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS 6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS 71c463a77b31ebeac2bfe00da13c684512daccf7
+
+      - name: Challenge commit ownership through publish and receipt
+        run: node scripts/challenge-agentos-project-file-commit-ownership.mjs validation-target/AgentOS 71c463a77b31ebeac2bfe00da13c684512daccf7
 
       - name: Record bounded evidence
         if: ${{ always() }}
@@ -45,7 +48,7 @@ jobs:
           cat > validation-evidence/current-project-file.json <<'JSON'
           {
             "schema": "prs.agentos-project-file-current-head.v1",
-            "agentos_target": "6b7aae6edd6f57ed5f9e44dfc4a6ee29a61ba238",
+            "agentos_target": "71c463a77b31ebeac2bfe00da13c684512daccf7",
             "pr": 104,
             "owner_windows_laptop_exercised": false,
             "local_wake_execution_enabled": false,
@@ -54,9 +57,10 @@ jobs:
               "project-file-mutation",
               "approved-root-boundaries",
               "recovery-state",
-              "recovery-governance"
+              "recovery-governance",
+              "continuous-lock-ownership-through-publish-and-receipt"
             ],
-            "note": "Exact-head adversarial assurance only. Not owner-laptop acceptance, scheduler/local-wake execution, production readiness, or overall AgentOS GREEN."
+            "note": "Exact-head adversarial assurance only. A reproduced negative case is evidence of a defect, not a CI failure. Not owner-laptop acceptance, scheduler/local-wake execution, production readiness, or overall AgentOS GREEN."
           }
           JSON
 
