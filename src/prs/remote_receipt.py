@@ -40,7 +40,7 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
         check("completed_status", receipt.get("status") == "COMPLETED", "receipt:status")
         check("budget_reconciled", receipt.get("budget_status") == "RECONCILED", "receipt:budget_status")
         check("green_pass", green.get("disposition") == "pass", "green:disposition")
-        for field in ("project_id", "task_id", "mission_id", "wake_trace_id", "worker_id", "code_identity"):
+        for field in IDENTITY_FIELDS:
             check(f"green_{field}", text(expected.get(field)) and green.get(field) == expected.get(field),
                   f"green:{field}")
         refs = receipt.get("evidence")
@@ -93,7 +93,7 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
         "disposition": "failed" if failed else "verified",
         "checks": checks,
         "findings": [dict(c, finding_id=f"bridge-{c['check_id']}") for c in checks if c["status"] == "fail"],
-        "provenance": {"evaluator_version": "offline-bridge-0.3", "observed_at": observed_at,
+        "provenance": {"evaluator_version": "offline-bridge-0.4", "observed_at": observed_at,
                        "check_outcomes": [f"{c['check_id']}:{c['status']}" for c in checks],
                        "evidence_references": sorted({r for c in checks for r in c["evidence"]})},
         "production_promotion_allowed": False,
