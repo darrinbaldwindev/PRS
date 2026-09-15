@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: 83a58b8bd230550b5781a0fee700cca250819a75
+          ref: 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
           path: validation-target/AgentOS
           persist-credentials: false
 
@@ -23,13 +23,13 @@ jobs:
         shell: bash
         run: |
           actual="$(git -C validation-target/AgentOS rev-parse HEAD)"
-          test "$actual" = "83a58b8bd230550b5781a0fee700cca250819a75"
+          test "$actual" = "4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091"
 
       - name: Challenge remote authority admission compatibility and provenance seams
         shell: bash
         run: |
           mkdir -p validation-evidence
-          node scripts/challenge-agentos-remote-authority-admission.mjs validation-target/AgentOS 83a58b8bd230550b5781a0fee700cca250819a75 \
+          node scripts/challenge-agentos-remote-authority-admission.mjs validation-target/AgentOS 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091 \
             | tee validation-evidence/remote-authority-admission.json
 
       - name: Record bounded scope
@@ -39,7 +39,7 @@ jobs:
           cat > validation-evidence/remote-authority-admission-scope.json <<'JSON'
           {
             "schema": "prs.agentos-remote-authority-admission-scope.v1",
-            "agentos_target": "83a58b8bd230550b5781a0fee700cca250819a75",
+            "agentos_target": "4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091",
             "pr": 104,
             "authenticated_transport_exercised": false,
             "canonical_grant_source_exercised": false,
