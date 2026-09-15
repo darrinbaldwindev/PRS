@@ -23,7 +23,7 @@ def bundle():
         "physical_power_loss_exercised": False,
         "gates": {gate: {"status": "pass", "evidence": [f"evidence:gate:{gate}"]} for gate in GATES},
         "negative_cases": {
-            case: {"status": "pass", "evidence": [f"evidence:negative:{case}"]}
+            case: {"status": "pass", "evidence": [f"evidence:negative:{case}"]
             for case in NEGATIVE_CASES
         },
         "evidence_custody": {
@@ -130,7 +130,7 @@ def test_current_agentos_pr104_fixture_is_fail_despite_other_missing_physical_ev
     fixture_path = Path(__file__).parent / "fixtures" / "owner-windows-level2" / "current-agentos-pr104.json"
     data = json.loads(fixture_path.read_text(encoding="utf-8"))
     result = evaluate_owner_windows_acceptance(data)
-    assert data["identity"]["code_identity"] == "83a58b8bd230550b5781a0fee700cca250819a75"
+    assert data["identity"]["code_identity"] == "4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091"
     assert data["gates"]["C"]["status"] == "fail"
     assert data["gates"]["E"]["status"] == "fail"
     assert data["physical_owner_machine"] is False
