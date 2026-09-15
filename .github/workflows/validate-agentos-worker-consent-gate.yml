@@ -1,0 +1,51 @@
+name: Validate AgentOS worker consent gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-worker-consent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: 2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable worker consent gate probe
+        run: node scripts/challenge-agentos-worker-consent-gate.mjs validation-target/AgentOS 2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/worker-consent-gate.json <<EOF
+          {
+            "schema": "prs.agentos-worker-consent-gate-workflow.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "prs_commit_sha": "${GITHUB_SHA}",
+            "agentos_target": "2be90ffdea37a6ca1c280c401f4a3d8833c8cbf7",
+            "powershell_process_execution_exercised": false,
+            "local_wake_execution_exercised": false,
+            "scheduler_execution_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "assurance_certified": false,
+            "production_promotion_allowed": false,
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-worker-consent-gate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/worker-consent-gate.json
+          if-no-files-found: error

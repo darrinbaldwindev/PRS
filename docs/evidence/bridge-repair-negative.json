@@ -1,0 +1,87 @@
+{
+  "schema": "prs.offline-adversarial-probe.v1",
+  "exact_head": "a008f24becca30efd5c4fca99a6a9bb654bc88a4",
+  "source_tree": "c4554c36d78746ae4353a6faddf0bd8a74322728",
+  "module": "runtime/remote-upstream-reconciliation.mjs",
+  "captured_at": "2026-09-09T23:03:59.045Z",
+  "suite": "bridge",
+  "cases": [
+    {
+      "id": "green-missing-task",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "green-empty-task",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "expected-host_id-mismatch",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "expected-worker_id-mismatch",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "expected-code_identity-mismatch",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "expected-config_identity-mismatch",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "expected-wake_trace_id-mismatch",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "duplicate-other-wake",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "missing-receipt",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "green-fail",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "budget-unknown",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "missing-final-result",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    }
+  ],
+  "assurance_certified": false,
+  "production_promotion_allowed": false,
+  "module_sha256": "975279a8e37bd4dbab8f513ed501e87d1389d104ba8fd8d41948cb34572a5806",
+  "positive_control": true,
+  "status": "NEGATIVE_CASES_PASS"
+}

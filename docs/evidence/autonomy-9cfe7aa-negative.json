@@ -1,0 +1,135 @@
+{
+  "schema": "prs.offline-adversarial-probe.v1",
+  "exact_head": "9cfe7aa38b2ffccd4872f0ba69ffbd6a4f4c6b80",
+  "source_tree": "0368e2c4052082458a50e4c83939c510c799ecee",
+  "module": "src/governance/autonomy.mjs",
+  "captured_at": "2026-09-09T23:03:58.980Z",
+  "suite": "autonomy",
+  "cases": [
+    {
+      "id": "authorised:\"false\"",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "authorised:1",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "authorised:{}",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "authorised:[]",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "capabilityGranted:\"false\"",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "capabilityGranted:1",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "capabilityGranted:{}",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "capabilityGranted:[]",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "inScope:\"false\"",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "inScope:1",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "inScope:{}",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "inScope:[]",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "withinBudget:\"false\"",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "withinBudget:1",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "withinBudget:{}",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "withinBudget:[]",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "production:null",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "production:0",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "production:\"\"",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "production:\"false\"",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    }
+  ],
+  "assurance_certified": false,
+  "production_promotion_allowed": false,
+  "module_sha256": "334bf7fb108c350232e87951868eac3e19bfe571ba8f7f7682d4c8b56cbe7a88",
+  "positive_control": true,
+  "status": "DEFECT_REPRODUCED"
+}
