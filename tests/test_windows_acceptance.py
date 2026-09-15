@@ -23,7 +23,7 @@ def bundle():
         "physical_power_loss_exercised": False,
         "gates": {gate: {"status": "pass", "evidence": [f"evidence:gate:{gate}"]} for gate in GATES},
         "negative_cases": {
-            case: {"status": "pass", "evidence": [f"evidence:negative:{case}"]
+            case: {"status": "pass", "evidence": [f"evidence:negative:{case}"]}
             for case in NEGATIVE_CASES
         },
         "evidence_custody": {
