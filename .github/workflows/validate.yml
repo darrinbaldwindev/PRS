@@ -6,6 +6,15 @@ on:
   pull_request:
   workflow_dispatch:
 
+# IMPORTANT: the AgentOS commits below are immutable historical regression fixtures.
+# This workflow proves PRS remains able to reproduce/challenge those exact fixtures;
+# it MUST NOT be interpreted as validation of the current AgentOS PR #104 head.
+# Current-head AgentOS assurance is performed by the dedicated exact-head workflows.
+env:
+  AGENTOS_HOST_STATUS_FIXTURE: d91abaecf602d7ef223c4888f10fa9361677302e
+  AGENTOS_LEVEL2_HISTORICAL_FIXTURE: 8673cef0b53c17841c0445a886ed3c079061c1e4
+  GEMVERSE_LEVEL2_FIXTURE: b50973474fad510c650507cc978ba2466c09f0a6
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -33,43 +42,43 @@ jobs:
           test -s .github/workflows/validate.yml
       - name: Run evaluator tests
         run: python -m pytest -q
-      - name: Check out exact AgentOS host-status target
+      - name: Check out exact AgentOS host-status historical fixture
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: d91abaecf602d7ef223c4888f10fa9361677302e
+          ref: ${{ env.AGENTOS_HOST_STATUS_FIXTURE }}
           path: validation-target/AgentOS
           persist-credentials: false
-      - name: Run immutable AgentOS host-status adversarial probe
-        run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS d91abaecf602d7ef223c4888f10fa9361677302e
-      - name: Check out exact AgentOS Level-2 target
+      - name: Run immutable AgentOS host-status historical regression probe
+        run: node scripts/challenge-agentos-host-status.mjs validation-target/AgentOS ${{ env.AGENTOS_HOST_STATUS_FIXTURE }}
+      - name: Check out exact AgentOS Level-2 historical fixture
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: 8673cef0b53c17841c0445a886ed3c079061c1e4
+          ref: ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
           path: validation-target/AgentOS-level2
           persist-credentials: false
-      - name: Run immutable AgentOS Level-2 project-file adversarial probe
-        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run immutable AgentOS project-file boundary probe
-        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run immutable AgentOS recovery-governance probe
-        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run immutable AgentOS recovery-state adversarial probe
-        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run immutable AgentOS PowerShell adversarial probe
-        run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run immutable bounded PowerShell runtime-enable probe
-        run: node scripts/challenge-agentos-powershell-runtime-enable.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+      - name: Run immutable AgentOS Level-2 project-file historical regression probe
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run immutable AgentOS project-file boundary historical regression probe
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run immutable AgentOS recovery-governance historical regression probe
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run immutable AgentOS recovery-state historical regression probe
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run immutable AgentOS PowerShell historical regression probe
+        run: node scripts/challenge-agentos-powershell.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run immutable bounded PowerShell runtime-enable historical regression probe
+        run: node scripts/challenge-agentos-powershell-runtime-enable.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
       - name: Check out exact GemVerse Level-2 fixture target
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/GemVerse
-          ref: b50973474fad510c650507cc978ba2466c09f0a6
+          ref: ${{ env.GEMVERSE_LEVEL2_FIXTURE }}
           path: validation-target/GemVerse
           persist-credentials: false
-      - name: Run AgentOS against exact GemVerse Level-2 fixture
-        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
+      - name: Run historical AgentOS fixture against exact GemVerse Level-2 fixture
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }} validation-target/GemVerse ${{ env.GEMVERSE_LEVEL2_FIXTURE }}
       - name: Write validation evidence
         if: ${{ always() }}
         shell: bash
@@ -78,7 +87,7 @@ jobs:
           mkdir -p validation-evidence
           cat > validation-evidence/github-actions-validation.json <<EOF
           {
-            "schema": "prs.github-actions-validation.v1",
+            "schema": "prs.github-actions-validation.v2",
             "workflow": "${GITHUB_WORKFLOW}",
             "run_id": "${GITHUB_RUN_ID}",
             "run_attempt": "${GITHUB_RUN_ATTEMPT}",
@@ -86,12 +95,14 @@ jobs:
             "ref": "${GITHUB_REF}",
             "event": "${GITHUB_EVENT_NAME}",
             "runner": "${RUNNER_OS}",
-            "agentos_host_status_target": "d91abaecf602d7ef223c4888f10fa9361677302e",
-            "agentos_level2_target": "8673cef0b53c17841c0445a886ed3c079061c1e4",
-            "gemverse_level2_fixture_target": "b50973474fad510c650507cc978ba2466c09f0a6",
+            "target_semantics": "historical_regression_fixture",
+            "current_agentos_head_validated": false,
+            "agentos_host_status_historical_fixture": "${AGENTOS_HOST_STATUS_FIXTURE}",
+            "agentos_level2_historical_fixture": "${AGENTOS_LEVEL2_HISTORICAL_FIXTURE}",
+            "gemverse_level2_fixture_target": "${GEMVERSE_LEVEL2_FIXTURE}",
             "level2_probes": ["project-file", "project-file-boundaries", "recovery-governance", "project-file-recovery-state", "powershell", "powershell-runtime-enable", "gemverse-level2-fixture"],
             "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "note": "Workflow execution evidence only; the runtime-enable probe is stub-only and does not connect local-wake/scheduler. This does not constitute owner-laptop acceptance, production readiness, or overall AgentOS GREEN."
+            "note": "Historical regression execution evidence only. The AgentOS target is intentionally immutable and is not the current PR #104 head. Dedicated exact-head workflows control current-head assurance. This does not constitute owner-laptop acceptance, production readiness, or overall AgentOS GREEN."
           }
           EOF
       - name: Upload validation evidence
@@ -107,18 +118,18 @@ jobs:
     steps:
       - name: Check out PRS probe source
         uses: actions/checkout@v4
-      - name: Check out exact AgentOS Level-2 target
+      - name: Check out exact AgentOS Level-2 historical fixture
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: 8673cef0b53c17841c0445a886ed3c079061c1e4
+          ref: ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
           path: validation-target/AgentOS-level2
           persist-credentials: false
       - name: Check out exact GemVerse Level-2 fixture target
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/GemVerse
-          ref: b50973474fad510c650507cc978ba2466c09f0a6
+          ref: ${{ env.GEMVERSE_LEVEL2_FIXTURE }}
           path: validation-target/GemVerse
           persist-credentials: false
       - name: Record hosted Windows environment
@@ -129,40 +140,42 @@ jobs:
           git --version
           where.exe powershell.exe
           powershell.exe -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
-      - name: Run exact AgentOS writer against GemVerse fixture on hosted Windows
+      - name: Run historical AgentOS writer against GemVerse fixture on hosted Windows
         shell: pwsh
-        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4 validation-target/GemVerse b50973474fad510c650507cc978ba2466c09f0a6
-      - name: Run hosted Windows filesystem adversarial probe
+        run: node scripts/challenge-agentos-gemverse-level2-fixture.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }} validation-target/GemVerse ${{ env.GEMVERSE_LEVEL2_FIXTURE }}
+      - name: Run hosted Windows filesystem historical regression probe
         shell: pwsh
-        run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run hosted Windows process adversarial probe
+        run: node scripts/challenge-agentos-windows-filesystem.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run hosted Windows process historical regression probe
         shell: pwsh
-        run: node scripts/challenge-agentos-windows-process-boundaries.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
-      - name: Run hosted Windows executable provenance probe
+        run: node scripts/challenge-agentos-windows-process-boundaries.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
+      - name: Run hosted Windows executable provenance historical regression probe
         shell: pwsh
-        run: node scripts/challenge-agentos-windows-executable-provenance.mjs validation-target/AgentOS-level2 8673cef0b53c17841c0445a886ed3c079061c1e4
+        run: node scripts/challenge-agentos-windows-executable-provenance.mjs validation-target/AgentOS-level2 ${{ env.AGENTOS_LEVEL2_HISTORICAL_FIXTURE }}
       - name: Write hosted Windows evidence
         if: ${{ always() }}
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path validation-evidence | Out-Null
           $evidence = [ordered]@{
-            schema = 'prs.hosted-windows-level2-validation.v6'
+            schema = 'prs.hosted-windows-level2-validation.v7'
             workflow = $env:GITHUB_WORKFLOW
             run_id = $env:GITHUB_RUN_ID
             run_attempt = $env:GITHUB_RUN_ATTEMPT
             commit_sha = $env:GITHUB_SHA
             ref = $env:GITHUB_REF
             runner_os = $env:RUNNER_OS
-            agentos_level2_target = '8673cef0b53c17841c0445a886ed3c079061c1e4'
-            gemverse_level2_fixture_target = 'b50973474fad510c650507cc978ba2466c09f0a6'
+            target_semantics = 'historical_regression_fixture'
+            current_agentos_head_validated = $false
+            agentos_level2_historical_fixture = $env:AGENTOS_LEVEL2_HISTORICAL_FIXTURE
+            gemverse_level2_fixture_target = $env:GEMVERSE_LEVEL2_FIXTURE
             hosted_windows_runner_exercised = $true
             owner_windows_laptop_exercised = $false
             scheduler_or_local_wake_exercised = $false
             production_repository_mutated = $false
             windows_probes = @('gemverse-fixture-recovery-concurrency','junction-containment','open-handle-recovery','separate-process-contention','powershell-timeout-process-tree','executable-provenance','executable-identity-drift')
             recorded_at_utc = (Get-Date).ToUniversalTime().ToString('o')
-            note = 'Hosted Windows assurance evidence only. Local-wake/scheduler remains unconnected. Not owner-laptop acceptance or overall AgentOS GREEN.'
+            note = 'Hosted Windows historical regression evidence only. The AgentOS target is intentionally immutable and is not the current PR #104 head. Dedicated exact-head workflows control current-head assurance. Not owner-laptop acceptance or overall AgentOS GREEN.'
           }
           $evidence | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 validation-evidence/hosted-windows-level2-validation.json
       - name: Upload hosted Windows evidence
