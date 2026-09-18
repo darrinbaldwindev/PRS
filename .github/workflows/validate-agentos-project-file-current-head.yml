@@ -11,11 +11,11 @@ jobs:
       - name: Check out PRS probes
         uses: actions/checkout@v4
 
-      - name: Check out exact AgentOS PR 104 head
+      - name: Check out exact AgentOS PR 123 head
         uses: actions/checkout@v4
         with:
           repository: darrinbaldwindev/AgentOS
-          ref: 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
+          ref: b993632ef44d26c91cab08190968205a6316106d
           path: validation-target/AgentOS
           persist-credentials: false
 
@@ -23,22 +23,22 @@ jobs:
         shell: bash
         run: |
           actual="$(git -C validation-target/AgentOS rev-parse HEAD)"
-          test "$actual" = "4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091"
+          test "$actual" = "b993632ef44d26c91cab08190968205a6316106d"
 
       - name: Challenge project-file mutation semantics
-        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS b993632ef44d26c91cab08190968205a6316106d
 
       - name: Challenge project-file boundaries
-        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS b993632ef44d26c91cab08190968205a6316106d
 
       - name: Challenge project-file recovery state
-        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS b993632ef44d26c91cab08190968205a6316106d
 
       - name: Challenge recovery governance
-        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS b993632ef44d26c91cab08190968205a6316106d
 
       - name: Challenge commit ownership through publish and receipt
-        run: node scripts/challenge-agentos-project-file-commit-ownership.mjs validation-target/AgentOS 4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091
+        run: node scripts/challenge-agentos-project-file-commit-ownership.mjs validation-target/AgentOS b993632ef44d26c91cab08190968205a6316106d
 
       - name: Record bounded evidence
         if: ${{ always() }}
@@ -48,8 +48,8 @@ jobs:
           cat > validation-evidence/current-project-file.json <<'JSON'
           {
             "schema": "prs.agentos-project-file-current-head.v1",
-            "agentos_target": "4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091",
-            "pr": 104,
+            "agentos_target": "b993632ef44d26c91cab08190968205a6316106d",
+            "pr": 123,
             "owner_windows_laptop_exercised": false,
             "local_wake_execution_enabled": false,
             "production_repository_mutated": false,
@@ -60,7 +60,7 @@ jobs:
               "recovery-governance",
               "continuous-lock-ownership-through-publish-and-receipt"
             ],
-            "note": "Exact-head adversarial assurance only. A reproduced negative case is evidence of a defect, not a CI failure. Not owner-laptop acceptance, scheduler/local-wake execution, production readiness, or overall AgentOS GREEN."
+            "note": "Exact-head adversarial assurance only against AgentOS PR #123. A reproduced negative case is evidence of a defect, not a CI failure. This does not establish full continuous SG-08 closure, owner-laptop acceptance, scheduler/local-wake execution, production readiness, or overall AgentOS GREEN."
           }
           JSON
 
