@@ -32,6 +32,7 @@ def bundle():
             "custody": "independent",
             "code_identity": data["identity"]["code_identity"],
             "config_identity": data["identity"]["config_identity"],
+            "identity": dict(data["identity"]),
         }
         for ref in refs
     }
@@ -157,6 +158,31 @@ def test_mismatched_manifest_identity_can_never_create_pass(field):
     assert "evidence_identity_not_bound" in result["limitations"]
 
 
+def test_partial_observed_identity_is_allowed_when_every_observed_field_matches():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["identity"] = {"task_id": data["identity"]["task_id"]}
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "pass"
+
+
+def test_missing_observed_identity_can_never_create_pass():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"].pop("identity")
+    result = evaluate_owner_windows_acceptance(data)
+    assert result["disposition"] == "insufficient_evidence"
+    assert "evidence_identity_not_bound" in result["limitations"]
+
+
+@pytest.mark.parametrize("field", IDENTITY_FIELDS)
+def test_conflicting_observed_identity_field_can_never_create_pass(field):
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["identity"] = {field: "conflicting-value"}
+    result = evaluate_owner_windows_acceptance(data)
+    assert result["disposition"] == "insufficient_evidence"
+    assert "evidence_identity_not_bound" in result["limitations"]
+
+
+def test_unknown_observed_identity_field_can_never_create_pass():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["identity"] = {"unknown_id": "value"}
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "insufficient_evidence"
+
+
 def test_stale_manifest_evidence_can_never_create_pass():
     data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["captured_at"] = "2026-09-12T13:29:00+00:00"
     result = evaluate_owner_windows_acceptance(data)
@@ -188,7 +214,9 @@ def test_schema_inventory_matches_evaluator_contract():
     assert schema["properties"]["gates"]["required"] == list(GATES)
     assert schema["properties"]["negative_cases"]["required"] == list(NEGATIVE_CASES)
     manifest = schema["$defs"]["evidenceManifestRecord"]
-    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "code_identity", "config_identity"]
+    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "code_identity", "config_identity", "identity"]
+    assert schema["$defs"]["observedIdentity"]["minProperties"] == 1
+    assert set(schema["$defs"]["observedIdentity"]["properties"]) == set(IDENTITY_FIELDS)
 
 
 def test_input_bundle_is_not_mutated():
