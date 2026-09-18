@@ -6,7 +6,7 @@ on:
 
 env:
   AGENTOS_DEFECT_TARGET: 607f2683b7d3b234fc6ffa70e2a7d42e31499c3a
-  AGENTOS_REPAIR_TARGET: 8168fdf310041a083bf993d24664bb9a940714ad
+  AGENTOS_REPAIR_TARGET: bec3cbc8e2cc0f157365cbb78bcfd09a57a61fe0
 
 jobs:
   challenge-install-recovery:
@@ -45,6 +45,12 @@ jobs:
           set -euo pipefail
           node scripts/challenge-agentos-install-recovery.mjs validation-target/AgentOS-repair "$AGENTOS_REPAIR_TARGET" pass \
             | tee validation-evidence/install-recovery-repair.json
+      - name: Challenge local doctor path drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/challenge-agentos-doctor-path-drift.mjs validation-target/AgentOS-repair "$AGENTOS_REPAIR_TARGET" \
+            | tee validation-evidence/doctor-path-drift-repair.json
       - name: Upload bounded evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
