@@ -1,0 +1,54 @@
+name: Validate AgentOS install recovery
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  AGENTOS_DEFECT_TARGET: 607f2683b7d3b234fc6ffa70e2a7d42e31499c3a
+  AGENTOS_REPAIR_TARGET: 8168fdf310041a083bf993d24664bb9a940714ad
+
+jobs:
+  challenge-install-recovery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Set up supported Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check out exact AgentOS defect target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: ${{ env.AGENTOS_DEFECT_TARGET }}
+          path: validation-target/AgentOS-defect
+          persist-credentials: false
+      - name: Check out exact AgentOS repair target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: ${{ env.AGENTOS_REPAIR_TARGET }}
+          path: validation-target/AgentOS-repair
+          persist-credentials: false
+      - name: Reproduce baseline defect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          node scripts/challenge-agentos-install-recovery.mjs validation-target/AgentOS-defect "$AGENTOS_DEFECT_TARGET" defect \
+            | tee validation-evidence/install-recovery-defect.json
+      - name: Challenge exact repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/challenge-agentos-install-recovery.mjs validation-target/AgentOS-repair "$AGENTOS_REPAIR_TARGET" pass \
+            | tee validation-evidence/install-recovery-repair.json
+      - name: Upload bounded evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-agentos-install-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/*.json
+          if-no-files-found: error
