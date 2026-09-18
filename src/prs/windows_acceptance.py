@@ -44,6 +44,15 @@ def _instant(value: Any) -> datetime | None:
     return parsed.astimezone(timezone.utc)
 
 
+def _record_identity_matches(record: Mapping[str, Any], identity: Mapping[str, Any]) -> bool:
+    observed = record.get("identity")
+    if not isinstance(observed, Mapping) or not observed:
+        return False
+    if any(field not in IDENTITY_FIELDS for field in observed):
+        return False
+    return all(_text(value) and value == identity.get(field) for field, value in observed.items())
+
+
 def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, Any]:
     """Evaluate one supplied physical Windows acceptance evidence bundle."""
     if not isinstance(bundle, Mapping):
@@ -106,7 +115,7 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
             base_valid = _sha256(record.get("sha256")) and _text(record.get("source")) and _text(record.get("captured_by"))
             if not base_valid:
                 manifest_ok = False
-            if not identity_ok or record.get("code_identity") != identity.get("code_identity") or record.get("config_identity") != identity.get("config_identity"):
+            if not identity_ok or record.get("code_identity") != identity.get("code_identity") or record.get("config_identity") != identity.get("config_identity") or not _record_identity_matches(record, identity):
                 manifest_identity_ok = False
             evidence_instant = _instant(record.get("captured_at"))
             if bundle_instant is None or evidence_instant is None or evidence_instant > bundle_instant or (bundle_instant - evidence_instant).total_seconds() > _MAX_EVIDENCE_AGE_SECONDS:
