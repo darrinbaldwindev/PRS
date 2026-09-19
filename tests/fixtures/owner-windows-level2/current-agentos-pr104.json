@@ -1,6 +1,6 @@
 {
   "schema": "prs.owner-windows-level2-acceptance.v0.1",
-  "captured_at": "2026-09-15T00:56:00+00:00",
+  "captured_at": "2026-09-19T13:05:00+00:00",
   "identity": {
     "delivery_id": "not-yet-owner-machine-exercised",
     "request_id": "not-yet-owner-machine-exercised",
@@ -10,7 +10,7 @@
     "wake_trace_id": "not-yet-owner-machine-exercised",
     "host_id": "owner-physical-host-not-proven",
     "worker_id": "owner-physical-worker-not-proven",
-    "code_identity": "4c8bcc3bc2ad2041b0a1871d3004c1db23f3c091",
+    "code_identity": "6b32b2cad54eb58bbf8d30285c82af875a211686",
     "actor_id": "owner-authenticated-actor-not-proven-end-to-end",
     "issuer": "canonical-issuer-not-proven-end-to-end",
     "config_identity": "owner-machine-config-not-captured"
@@ -20,16 +20,16 @@
   "scheduler_local_wake_exercised": false,
   "physical_power_loss_exercised": false,
   "gates": {
-    "A": {"status": "not_exercised", "evidence": ["prs:hosted-and-repository-provenance-only"]},
-    "B": {"status": "not_exercised", "evidence": ["prs:owner-physical-host-and-authenticated-transport-not-proven"]},
-    "C": {"status": "fail", "evidence": ["prs:remote-admission-local-wake-contract-defect:4c8bcc3"]},
+    "A": {"status": "not_exercised", "evidence": ["prs:hosted-and-repository-provenance-only:6b32b2c"]},
+    "B": {"status": "blocked", "evidence": ["prs:canonical-authenticated-session-grant-consent-provenance-unresolved:6b32b2c"]},
+    "C": {"status": "blocked", "evidence": ["prs:admission-local-wake-canonical-field-sourcing-unresolved:6b32b2c"]},
     "D": {"status": "not_exercised", "evidence": ["prs:real-owner-laptop-powershell-not-exercised"]},
-    "E": {"status": "fail", "evidence": ["prs:continuous-project-file-ownership-defect:4c8bcc3"]},
-    "F": {"status": "blocked", "evidence": ["prs:recovery-physical-acceptance-blocked-by-gate-e"]},
-    "G": {"status": "blocked", "evidence": ["prs:physical-concurrency-acceptance-blocked-by-gate-e"]},
+    "E": {"status": "not_exercised", "evidence": ["prs:sg08-repair-pass-is-separate-head-125-not-transferable-to-104"]},
+    "F": {"status": "blocked", "evidence": ["prs:owner-physical-recovery-qualification-not-yet-eligible"]},
+    "G": {"status": "blocked", "evidence": ["prs:owner-physical-concurrency-qualification-not-yet-eligible"]},
     "H": {"status": "not_exercised", "evidence": ["prs:owner-machine-durable-result-bundle-not-captured"]},
-    "I": {"status": "blocked", "evidence": ["prs:green-ineligible-while-upstream-gates-fail"]},
-    "J": {"status": "blocked", "evidence": ["prs:independent-physical-qualification-ineligible-while-upstream-gates-fail"]}
+    "I": {"status": "blocked", "evidence": ["prs:green-ineligible-while-upstream-authority-and-physical-gates-unproven"]},
+    "J": {"status": "blocked", "evidence": ["prs:independent-physical-qualification-ineligible-while-upstream-gates-unproven"]}
   },
   "negative_cases": {
     "1": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:1"]},
@@ -41,7 +41,7 @@
     "7": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:7"]},
     "8": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:8"]},
     "9": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:9"]},
-    "10": {"status": "fail", "evidence": ["prs:successor-displacement-reproduced:4c8bcc3"]},
+    "10": {"status": "not_exercised", "evidence": ["prs:sg08-negative-pass-is-separate-head-125-not-transferable-to-104"]},
     "11": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:11"]},
     "12": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:12"]},
     "13": {"status": "not_exercised", "evidence": ["prs:owner-machine-negative-case-not-run:13"]},
