@@ -20,9 +20,13 @@ def bundle():
         "negative_cases": {case: {"status": "pass", "evidence": [f"evidence:negative:{case}"]} for case in NEGATIVE_CASES},
         "evidence_custody": {"outside_worker_path": True, "evidence": ["evidence:custody:independent-copy"]},
     }
-    refs = {ref for record in data["gates"].values() for ref in record["evidence"]}
-    refs.update(ref for record in data["negative_cases"].values() for ref in record["evidence"])
-    refs.update(data["evidence_custody"]["evidence"])
+    assertions = {}
+    for gate, record in data["gates"].items():
+        for ref in record["evidence"]: assertions.setdefault(ref, []).append(f"gate:{gate}:{record['status']}")
+    for case, record in data["negative_cases"].items():
+        for ref in record["evidence"]: assertions.setdefault(ref, []).append(f"negative:{case}:{record['status']}")
+    for ref in data["evidence_custody"]["evidence"]:
+        assertions.setdefault(ref, []).append("custody:outside_worker_path:true")
     data["evidence_manifest"] = {
         ref: {
             "sha256": "a" * 64,
@@ -33,8 +37,9 @@ def bundle():
             "code_identity": data["identity"]["code_identity"],
             "config_identity": data["identity"]["config_identity"],
             "identity": dict(data["identity"]),
+            "assertions": values,
         }
-        for ref in refs
+        for ref, values in assertions.items()
     }
     return data
 
@@ -69,14 +74,12 @@ def test_hosted_windows_cannot_be_relabelled_as_owner_laptop_acceptance():
 
 def test_missing_scheduler_local_wake_proof_is_insufficient():
     data = bundle(); data["scheduler_local_wake_exercised"] = False
-    result = evaluate_owner_windows_acceptance(data)
-    assert result["disposition"] == "insufficient_evidence"
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "insufficient_evidence"
 
 
 def test_worker_only_evidence_custody_is_insufficient():
     data = bundle(); data["evidence_custody"]["outside_worker_path"] = False
-    result = evaluate_owner_windows_acceptance(data)
-    assert result["disposition"] == "insufficient_evidence"
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "insufficient_evidence"
 
 
 @pytest.mark.parametrize("gate", GATES)
@@ -202,6 +205,34 @@ def test_worker_custody_manifest_evidence_can_never_create_pass():
     assert "evidence_independent_custody_not_bound" in result["limitations"]
 
 
+def test_missing_semantic_assertion_can_never_create_pass():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["assertions"] = []
+    result = evaluate_owner_windows_acceptance(data)
+    assert result["disposition"] == "insufficient_evidence"
+    assert "evidence_semantics_not_bound" in result["limitations"]
+
+
+def test_conflicting_semantic_assertion_can_never_create_pass():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["assertions"] = ["gate:A:fail"]
+    result = evaluate_owner_windows_acceptance(data)
+    assert result["disposition"] == "insufficient_evidence"
+    assert "evidence_semantics_not_bound" in result["limitations"]
+
+
+def test_extra_semantic_assertion_can_never_create_pass():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["assertions"].append("gate:B:pass")
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "insufficient_evidence"
+
+
+def test_shared_evidence_must_bind_every_acceptance_use():
+    data = bundle(); shared = "evidence:gate:A"; data["gates"]["B"]["evidence"] = [shared]
+    data["evidence_manifest"].pop("evidence:gate:B")
+    data["evidence_manifest"][shared]["assertions"] = ["gate:A:pass", "gate:B:pass"]
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "pass"
+    data["evidence_manifest"][shared]["assertions"] = ["gate:A:pass"]
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "insufficient_evidence"
+
+
 def test_known_failure_still_outranks_provenance_insufficiency():
     data = bundle(); data["gates"]["E"]["status"] = "fail"; data.pop("evidence_manifest")
     assert evaluate_owner_windows_acceptance(data)["disposition"] == "fail"
@@ -214,7 +245,7 @@ def test_schema_inventory_matches_evaluator_contract():
     assert schema["properties"]["gates"]["required"] == list(GATES)
     assert schema["properties"]["negative_cases"]["required"] == list(NEGATIVE_CASES)
     manifest = schema["$defs"]["evidenceManifestRecord"]
-    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "code_identity", "config_identity", "identity"]
+    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "code_identity", "config_identity", "identity", "assertions"]
     assert schema["$defs"]["observedIdentity"]["minProperties"] == 1
     assert set(schema["$defs"]["observedIdentity"]["properties"]) == set(IDENTITY_FIELDS)
 
