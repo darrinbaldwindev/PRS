@@ -76,13 +76,22 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     check("scheduler_local_wake_exercised", scheduler_local_wake, "bundle:scheduler_local_wake_exercised")
 
     referenced_evidence: set[str] = set()
+    expected_assertions: dict[str, set[str]] = {}
+
+    def bind_assertions(refs: Any, assertion: str) -> None:
+        if _refs(refs):
+            referenced_evidence.update(refs)
+            for ref in refs:
+                expected_assertions.setdefault(ref, set()).add(assertion)
+
     gate_records = bundle.get("gates"); gate_states: dict[str, str] = {}; gate_shape_ok = isinstance(gate_records, Mapping)
     for gate in GATES:
         record = gate_records.get(gate) if gate_shape_ok else None
         state = record.get("status") if isinstance(record, Mapping) else None
         refs = record.get("evidence") if isinstance(record, Mapping) else None
         valid_state = state in _ALLOWED_GATE_STATES; valid_refs = _refs(refs)
-        if valid_refs: referenced_evidence.update(refs)
+        if valid_state and valid_refs: bind_assertions(refs, f"gate:{gate}:{state}")
+        elif valid_refs: referenced_evidence.update(refs)
         gate_states[gate] = state if valid_state else "not_exercised"
         check(f"gate_{gate}_shape", bool(valid_state and valid_refs), f"bundle:gates:{gate}")
 
@@ -92,13 +101,15 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
         state = record.get("status") if isinstance(record, Mapping) else None
         refs = record.get("evidence") if isinstance(record, Mapping) else None
         valid_state = state in {"pass", "fail", "not_exercised"}; valid_refs = _refs(refs)
-        if valid_refs: referenced_evidence.update(refs)
+        if valid_state and valid_refs: bind_assertions(refs, f"negative:{case}:{state}")
+        elif valid_refs: referenced_evidence.update(refs)
         negative_states[case] = state if valid_state else "not_exercised"
         check(f"negative_case_{case}_shape", bool(valid_state and valid_refs), f"bundle:negative_cases:{case}")
 
     custody = bundle.get("evidence_custody"); custody_refs = custody.get("evidence") if isinstance(custody, Mapping) else None
-    if _refs(custody_refs): referenced_evidence.update(custody_refs)
     custody_ok = isinstance(custody, Mapping) and custody.get("outside_worker_path") is True and _refs(custody_refs)
+    if _refs(custody_refs):
+        bind_assertions(custody_refs, f"custody:outside_worker_path:{str(custody.get('outside_worker_path') is True).lower()}")
     check("independent_evidence_custody", custody_ok, "bundle:evidence_custody")
 
     manifest = bundle.get("evidence_manifest")
@@ -106,11 +117,12 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     manifest_identity_ok = manifest_ok and identity_ok
     manifest_freshness_ok = manifest_ok and bundle_instant is not None
     manifest_custody_ok = manifest_ok
+    manifest_semantics_ok = manifest_ok
     if manifest_ok:
         for ref in referenced_evidence:
             record = manifest.get(ref)
             if not isinstance(record, Mapping):
-                manifest_ok = manifest_identity_ok = manifest_freshness_ok = manifest_custody_ok = False
+                manifest_ok = manifest_identity_ok = manifest_freshness_ok = manifest_custody_ok = manifest_semantics_ok = False
                 break
             base_valid = _sha256(record.get("sha256")) and _text(record.get("source")) and _text(record.get("captured_by"))
             if not base_valid:
@@ -122,6 +134,10 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
                 manifest_freshness_ok = False
             if record.get("custody") != "independent":
                 manifest_custody_ok = False
+            assertions = record.get("assertions")
+            expected = expected_assertions.get(ref, set())
+            if not _refs(assertions) or set(assertions) != expected:
+                manifest_semantics_ok = False
     if isinstance(manifest, Mapping):
         manifest_ok = bool(manifest_ok and referenced_evidence.issubset(manifest.keys()))
     else:
@@ -130,7 +146,8 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     check("evidence_identity_bound", bool(manifest_ok and manifest_identity_ok), "bundle:evidence_manifest:identity")
     check("evidence_freshness_bound", bool(manifest_ok and manifest_freshness_ok), "bundle:evidence_manifest:captured_at")
     check("evidence_independent_custody_bound", bool(manifest_ok and manifest_custody_ok), "bundle:evidence_manifest:custody")
-    provenance_ok = bool(manifest_ok and manifest_identity_ok and manifest_freshness_ok and manifest_custody_ok)
+    check("evidence_semantics_bound", bool(manifest_ok and manifest_semantics_ok), "bundle:evidence_manifest:assertions")
+    provenance_ok = bool(manifest_ok and manifest_identity_ok and manifest_freshness_ok and manifest_custody_ok and manifest_semantics_ok)
 
     known_fail = any(state == "fail" for state in gate_states.values()) or any(state == "fail" for state in negative_states.values())
     known_blocked = any(state == "blocked" for state in gate_states.values())
@@ -152,6 +169,7 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     if manifest_ok and not manifest_identity_ok: limitations.append("evidence_identity_not_bound")
     if manifest_ok and not manifest_freshness_ok: limitations.append("evidence_freshness_not_bound")
     if manifest_ok and not manifest_custody_ok: limitations.append("evidence_independent_custody_not_bound")
+    if manifest_ok and not manifest_semantics_ok: limitations.append("evidence_semantics_not_bound")
     return {
         "scope": "owner_windows_level2_physical_acceptance", "disposition": disposition, "checks": checks, "findings": findings,
         "limitations": limitations,
