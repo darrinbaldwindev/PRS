@@ -1,116 +1,92 @@
 # PRS Vertical Execution Batch
 
 **Batch:** PRS-VERTICAL-2026-09-14-01  
-**Reconciled:** 2026-09-18 Australia/Brisbane  
+**Reconciled:** 2026-09-19 Australia/Brisbane  
 **Canonical PRS main:** `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207`  
 **Execution mode:** fresh scan -> prioritize -> execute fullest safe batch -> exact-head verify -> rescan -> replenish -> durable log
 
 ## Mission
-
 Maximize useful PRS assurance progress per owner interaction while preserving independent evidence boundaries. AgentOS owns execution/orchestration; PRS independently challenges claims, detects false-GREEN conditions, preserves provenance, and withholds assurance where evidence is insufficient.
 
 ## Automatic trigger
-
 `cont`, `continue`, `continue autonomously`, and `continue autonomously vertically` trigger the full cycle: fresh-scan live heads; reconcile this batch; execute the fullest safe useful work; exact-head verify; rescan; downgrade moved-head evidence to historical; replenish; durably log.
 
 ## Hard governance boundaries
-
-- No merge, approval, ready transition, rebase, deployment, credential/security-setting changes, production writes, purchases, supplier contact, lock clearing, scheduler mutation, or production autonomy.
+- No merge, approval, ready transition, rebase, deployment, credential/security-setting changes, production writes, purchases, supplier contact, lock clearing, scheduler mutation, physical-host action, or production autonomy.
 - No alternate scheduler, worker registry, mission ledger, authority system, governance layer, persistence layer, assurance source of truth, or remediation authority.
-- Exact-head evidence only.
+- Exact-head evidence only. Verdicts never transfer across commit heads.
 - Hosted/CI Windows evidence is not owner physical Windows acceptance.
-- Worker success, filesystem state, receipt presence, CI success, Green, and PRS are distinct evidence/decision layers.
+- Workflow SUCCESS means the probe/test executed as designed; it is not automatically target PASS/GREEN.
 
-## Fresh exact state — 2026-09-18
+## Fresh exact state — 2026-09-19
 
 ### PRS
-- `main`: `3b3e22d9a20d05f0dde1a0d25a4e7edb9e3d8207`.
-- PR #17: exact head `11bb5da26578be285e86ff6196196c07b77e863a`; OPEN / DRAFT / UNMERGED / mergeable.
-- PR #17 exact-head repository validation run #171 / `35313642563`: SUCCESS; Linux suite **218 passed in 0.50s**; hosted Windows job SUCCESS as hosted evidence only.
-- Validation artifact `prs-validation-evidence-35313642563-1`, ID `10534107049`, SHA256 `310feae07eb8b7455a00bde49fda6f76e3bbd2342b37fd23df9e2b315516a217`.
-- Hosted artifact `prs-hosted-windows-level2-35313642563-1`, ID `10534756620`, SHA256 `73abd104d1f284d808f23811152753654c30c9b6f873d4f7e0c5641960393f50`.
-- All 13 PR-triggered workflows associated with exact head `11bb5da...` completed SUCCESS as probe/test execution evidence.
-- PR #23 remains independent bounded v0.1 adapter/package hardening at `ea6d40c06361f3f598eb71b2e009feefb46c4d37`; OPEN / DRAFT / UNMERGED / mergeable. Do not conflate or autonomously merge/rebase.
+- PR #17 exact head: `3f963c2cf92b234e2f777f2abbae25c8d3e3e886`; OPEN / DRAFT / UNMERGED / mergeable.
+- Exact-head validation run #185 / `35443848681`: SUCCESS; Linux evaluator suite **237 passed in 0.48s**.
+- All 13 PR-triggered workflows on exact head `3f963c2...` completed SUCCESS as probe/test execution evidence.
+- Validation artifact: `prs-validation-evidence-35443848681-1`, ID `10584646766`, SHA256 `b3b0f0be64fea40a1738174d195e3cf989a9f72f1a19c9017fa0d0b059cd6bfb`.
+- Hosted Windows historical-regression artifact: `prs-hosted-windows-level2-35443848681-1`, ID `10585285638`, SHA256 `494c4cd33bdcab1ade4cd51e7552ac596d14ef6dd699595b9b5d63587b9f0437`.
+- PR #31 exact head `802eb5365bf4dff258fff0797223da1b3cf09b6d`; bounded independent AgentOS #129 durable-evidence loader challenge.
+- PR #23 remains independent core v0.1 adapter/package hardening at `ea6d40c06361f3f598eb71b2e009feefb46c4d37`; do not conflate or autonomously merge/rebase.
 
-### AgentOS
-- PR #104 exact current head: `607f2683b7d3b234fc6ffa70e2a7d42e31499c3a`; OPEN / DRAFT / UNMERGED / mergeable.
-- Its PR body is stale and names an older checkpoint; PR metadata head controls.
-- Exact current immutable PRS probes reproduce both controlling P0 defects below.
+### AgentOS vertical
+- PR #104 exact head: `6b32b2cad54eb58bbf8d30285c82af875a211686`; OPEN / DRAFT / UNMERGED / mergeable.
+- PR #125 exact head: `203273761794cca8c7a9636d45eae0249a435a72`; bounded SG-08 continuous-ownership repair candidate. Independent PRS challenge reports the two prior false-success cases no longer reproduce (`NEGATIVE_CASES_PASS`, `defect_count:0`) on that exact repair head only.
+- PR #129 exact head: `ecd7fa33536fa963c51dbbcf381ee676e385c117`; read-only durable session/grant/consent evidence loader. PRS #31 independently challenges that exact loader contract with `NEGATIVE_CASES_PASS`; trusted issuers/authenticated transport/admission integration remain deliberately unproven.
 
-## Controlling P0 findings
+## Completed this cycle — evidence semantic binding
+The owner-Windows machine evaluator now requires every PASS-supporting evidence manifest record to bind to the exact acceptance assertion(s) for which the evidence is relied upon, in addition to digest/provenance, freshness, independent custody, code/config identity and observed acceptance identity.
 
-### A. Continuous project-file ownership — FAIL
-Exact-current-head workflow run #35 / `35313235376` reproduced normal-publish and prepared-recovery successor-displacement false-success cases on AgentOS `607f2683...`.
+Canonical assertion vocabulary:
+- `gate:<A-J>:<pass|fail|not_exercised|blocked>`;
+- `negative:<1-15>:<pass|fail|not_exercised>`;
+- `custody:outside_worker_path:true`.
 
-Observed in both bounded cases: target mutation occurred; a success receipt persisted; successor lock survived; release only then detected `PROJECT_FILE_LOCK_RECOVERY_REQUIRED`.
+Missing, contradictory, or surplus assertions cannot establish PASS. Shared evidence must enumerate all uses it supports. Explicit known falsification retains precedence over provenance insufficiency.
 
-Evidence artifact `prs-agentos-project-file-current-head-35313235376-1`, ID `10534586329`, SHA256 `4da92cacfdaea2f1bfbd8855189668578ca5bde688f3491ecbe7910bf4f930de`.
-
-Disposition: continuous ownership **FAIL**; project-file production promotion **NOT ALLOWED**.
-
-### B. Remote admission -> local-wake compatibility — FAIL
-Exact-current-head workflow run #25 / `35313235339` reproduced the canonical mismatch on AgentOS `607f2683...`: admitted non-PowerShell tasks omit `consent_mode`, `acceptance_criteria`, and `target`, while local-wake requires all three. Caller-supplied authenticated actor context and injected grant resolver remain composition seams, not end-to-end provenance.
-
-Evidence artifact `prs-agentos-remote-authority-admission-35313235339-1`, ID `10534810632`, SHA256 `b69e714d972c192480f273323008fc4aab53730fd45807bb098257f2940a79bd`.
-
-Disposition: admission/local-wake compatibility **FAIL**; authenticated transport **NOT PROVEN**; canonical grant source end to end **NOT PROVEN**; production remote execution **NOT AUTHORIZED**.
-
-## Completed P0 — owner-Windows evidence provenance hardening
-
-The machine evaluator now requires every PASS-supporting evidence reference to resolve through `evidence_manifest`. Each relied-on record must carry a valid SHA256, non-empty source/captured_by, parseable `captured_at`, `custody: independent`, and matching bundle `code_identity` + `config_identity`. Records older than 24 hours relative to bundle capture, future-dated records, mismatched code/config identity, unresolved records, malformed records, or worker-only custody cannot establish PASS.
-
-Known explicit falsification retains precedence: an already failed gate/negative case remains **FAIL** and cannot be softened merely because provenance is incomplete.
-
-Generic `Validate repository` explicitly labels its pinned AgentOS commits as historical regression fixtures and records `target_semantics: historical_regression_fixture` plus `current_agentos_head_validated:false`. Dedicated exact-current-head workflows control current AgentOS #104 assurance claims.
-
-## Current owner-Windows Level-2 disposition
-
-For exact AgentOS `607f2683...`:
-- aggregate machine disposition: **FAIL** due independently reproduced required-property failures;
-- owner physical-machine exercise: **NOT PROVEN**;
-- scheduler/local-wake owner-machine acceptance: **NOT PROVEN**;
-- physical power-loss durability: **NOT PROVEN**;
-- project-file production promotion: **NOT ALLOWED**;
-- production remote execution: **NOT AUTHORIZED**;
-- overall AgentOS GREEN: **NOT ISSUED**.
-
-This does not claim the owner's physical laptop itself was exercised and failed.
+## Current Level-2 disposition
+- SG-08 old defect class: bounded repair evidence exists on #125 exact head only; no transfer to #104 or overall GREEN.
+- SG-01/02 durable evidence loader: bounded validation exists on #129 exact head only.
+- trusted canonical session authenticator/issuer: NOT PROVEN.
+- trusted canonical grant issuer: NOT PROVEN.
+- trusted canonical consent issuer: NOT PROVEN.
+- governed admission integration selecting trusted evidence IDs: NOT PROVEN.
+- authenticated transport end to end: NOT PROVEN.
+- owner physical Windows acceptance: NOT PROVEN.
+- scheduler/local-wake owner-machine acceptance: NOT PROVEN.
+- physical power-loss durability: NOT PROVEN.
+- production promotion: NOT AUTHORIZED.
+- overall AgentOS GREEN: NOT ISSUED.
 
 ## Replenished priority queue
 
-### P0-1 — Challenge first AgentOS project-file ownership repair
-When #104 changes relevant ownership/writer code, rerun the unchanged successor-displacement probes first. Require one crash-releasing ownership fence held continuously through publish/prepared recovery, verification, durable success receipt, and release. Then expand crash/concurrency/replay coverage. Independent Green then PRS remain downstream gates.
+### P0-1 — Challenge trusted issuer/authenticator boundary
+When AgentOS adds/reuses a trusted session authenticator or grant/consent issuer, independently challenge creation authority, exact actor/issuer/request/delivery/project/mission/intent/target/capability binding, lifetime/revocation, replay, and untrusted payload substitution. Do not allow the validator to become the issuer and do not create a competing authority plane.
 
-### P0-2 — Challenge first admission/local-wake repair
-When #104 changes relevant admission/wake code, rerun the unchanged compatibility probe first. Require one canonical contract carrying consent/acceptance/target semantics without weakening fail-closed checks, plus evidence of a real existing authenticated actor and canonical grant source end to end. Preserve full identity correlation.
+### P0-2 — Challenge admission integration
+When the durable evidence loader is wired into admission, require evidence IDs to be selected from governed local state rather than accepted as truth from untrusted remote payloads. Rerun unchanged caller-auth, cross-request, replay, revoked/stale and admission->local-wake compatibility probes.
 
-### P0-3 — Evidence-record identity closure
-Next PRS-side hardening while AgentOS remains unchanged:
-1. bind relied-on evidence records to the full 12-field acceptance identity where the evidence class can observe those fields;
-2. define explicit partial-identity semantics for evidence that legitimately cannot observe all fields rather than silently omitting identity;
-3. reject conflicting evidence records and duplicate evidence IDs with divergent semantics;
-4. preserve exact code/config binding, staleness checks and independent custody;
-5. keep the evaluator offline/dependency-light and do not connect to owner hardware;
-6. retain explicit FAIL precedence for the current AgentOS fixture.
+### P0-3 — Deepen evidence semantic closure
+Next PRS-side false-GREEN work:
+1. bind evidence records to explicit evidence class/type rather than source strings alone;
+2. reject one digest/evidence ID reused under incompatible evidence classes;
+3. bind assertion semantics to immutable content metadata where available;
+4. preserve full/partial identity semantics, exact code/config identity, freshness and independent custody;
+5. keep evaluator offline/dependency-light and preserve explicit FAIL precedence.
 
-### P1-1 — Core evaluator hygiene
-Keep PR #23 independent. Consider porting PR #15's explicit finding/provenance negative assertion pattern into the active core-hardening path without reviving stale implementation lineage.
+### P0-4 — SG-08 completion gates
+Keep #125 verdict exact-head scoped. Challenge any head movement with unchanged successor-displacement probes. Require completion-grade independent review and required owner physical-Windows acceptance separately; do not infer them from POSIX CI.
 
-### P1-2 — Batch/coordination hygiene
-Keep this batch current after each owner continuation and log verified exact-head changes to Overseer issue #49. Do not treat workflow SUCCESS as target PASS/GREEN.
+### P1 — Core and coordination hygiene
+Keep PR #23 independent. Keep this batch current after every continuation and durably log material exact-head changes to Overseer issue #49. Do not revive stale implementation lineages merely to consolidate history.
 
 ## Execution log
-
-- [x] fresh-scanned PRS main, PR #17, PR #23, AgentOS #104.
-- [x] verified PR #17 remains exact head `11bb5da...`, open/draft/unmerged/mergeable.
-- [x] verified AgentOS #104 remains exact head `607f2683...`, open/draft/unmerged/mergeable.
-- [x] verified PRS main remains `3b3e22d...`.
-- [x] exact-head PRS validation at `11bb5da...`: 218 tests passed; all 13 workflows successful as execution evidence.
-- [x] PR #17 body reconciled to current PRS/AgentOS exact heads and current artifacts.
-- [x] PR #17 labels now make P0/evidence/no-GREEN/promotion-blocked status explicit.
-- [x] durable coordination checkpoint written to Overseer issue #49.
-- [x] this vertical batch reconciled and replenished.
+- [x] fresh-scanned PRS #17/#23/#31 and AgentOS #104/#125/#129.
+- [x] hardened evidence records with exact acceptance assertion semantics.
+- [x] exact-head PRS validation completed: 237 tests passed; all 13 workflows successful as execution evidence.
+- [x] recorded exact validation and hosted historical-regression artifact IDs/digests.
+- [x] reconciled PR #17 body to current heads and head-specific verdicts.
+- [x] reconciled and replenished this durable vertical batch.
 
 ## Replenishment rule
-
 Every autonomous continuation starts from a fresh repo/head scan. Never assume recorded heads remain current. Reconcile first, execute second, verify third, rescan fourth, then replenish again.
