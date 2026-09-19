@@ -17,6 +17,7 @@ IDENTITY_FIELDS = (
 GATES = tuple("ABCDEFGHIJ")
 NEGATIVE_CASES = tuple(str(index) for index in range(1, 16))
 _ALLOWED_GATE_STATES = {"pass", "fail", "not_exercised", "blocked"}
+_ALLOWED_EVIDENCE_CLASSES = {"gate", "negative_case", "custody"}
 _MAX_EVIDENCE_AGE_SECONDS = 24 * 60 * 60
 
 
@@ -51,6 +52,13 @@ def _record_identity_matches(record: Mapping[str, Any], identity: Mapping[str, A
     if any(field not in IDENTITY_FIELDS for field in observed):
         return False
     return all(_text(value) and value == identity.get(field) for field, value in observed.items())
+
+
+def _expected_evidence_class(assertions: set[str]) -> str | None:
+    prefixes = {assertion.split(":", 1)[0] for assertion in assertions}
+    if len(prefixes) != 1:
+        return None
+    return {"gate": "gate", "negative": "negative_case", "custody": "custody"}.get(next(iter(prefixes)))
 
 
 def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, Any]:
@@ -118,11 +126,13 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     manifest_freshness_ok = manifest_ok and bundle_instant is not None
     manifest_custody_ok = manifest_ok
     manifest_semantics_ok = manifest_ok
+    manifest_class_ok = manifest_ok
+    digest_classes: dict[str, set[str]] = {}
     if manifest_ok:
         for ref in referenced_evidence:
             record = manifest.get(ref)
             if not isinstance(record, Mapping):
-                manifest_ok = manifest_identity_ok = manifest_freshness_ok = manifest_custody_ok = manifest_semantics_ok = False
+                manifest_ok = manifest_identity_ok = manifest_freshness_ok = manifest_custody_ok = manifest_semantics_ok = manifest_class_ok = False
                 break
             base_valid = _sha256(record.get("sha256")) and _text(record.get("source")) and _text(record.get("captured_by"))
             if not base_valid:
@@ -138,6 +148,15 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
             expected = expected_assertions.get(ref, set())
             if not _refs(assertions) or set(assertions) != expected:
                 manifest_semantics_ok = False
+            evidence_class = record.get("evidence_class")
+            expected_class = _expected_evidence_class(expected)
+            if evidence_class not in _ALLOWED_EVIDENCE_CLASSES or expected_class is None or evidence_class != expected_class:
+                manifest_class_ok = False
+            digest = record.get("sha256")
+            if _sha256(digest) and evidence_class in _ALLOWED_EVIDENCE_CLASSES:
+                digest_classes.setdefault(digest.lower(), set()).add(evidence_class)
+        if any(len(classes) > 1 for classes in digest_classes.values()):
+            manifest_class_ok = False
     if isinstance(manifest, Mapping):
         manifest_ok = bool(manifest_ok and referenced_evidence.issubset(manifest.keys()))
     else:
@@ -147,7 +166,8 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     check("evidence_freshness_bound", bool(manifest_ok and manifest_freshness_ok), "bundle:evidence_manifest:captured_at")
     check("evidence_independent_custody_bound", bool(manifest_ok and manifest_custody_ok), "bundle:evidence_manifest:custody")
     check("evidence_semantics_bound", bool(manifest_ok and manifest_semantics_ok), "bundle:evidence_manifest:assertions")
-    provenance_ok = bool(manifest_ok and manifest_identity_ok and manifest_freshness_ok and manifest_custody_ok and manifest_semantics_ok)
+    check("evidence_class_bound", bool(manifest_ok and manifest_class_ok), "bundle:evidence_manifest:evidence_class")
+    provenance_ok = bool(manifest_ok and manifest_identity_ok and manifest_freshness_ok and manifest_custody_ok and manifest_semantics_ok and manifest_class_ok)
 
     known_fail = any(state == "fail" for state in gate_states.values()) or any(state == "fail" for state in negative_states.values())
     known_blocked = any(state == "blocked" for state in gate_states.values())
@@ -170,6 +190,7 @@ def evaluate_owner_windows_acceptance(bundle: Mapping[str, Any]) -> dict[str, An
     if manifest_ok and not manifest_freshness_ok: limitations.append("evidence_freshness_not_bound")
     if manifest_ok and not manifest_custody_ok: limitations.append("evidence_independent_custody_not_bound")
     if manifest_ok and not manifest_semantics_ok: limitations.append("evidence_semantics_not_bound")
+    if manifest_ok and not manifest_class_ok: limitations.append("evidence_class_not_bound")
     return {
         "scope": "owner_windows_level2_physical_acceptance", "disposition": disposition, "checks": checks, "findings": findings,
         "limitations": limitations,
