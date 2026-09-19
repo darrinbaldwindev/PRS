@@ -81,6 +81,16 @@ def test_cli_rejects_non_object_bundle_without_assurance_result(tmp_path: Path):
     assert "disposition" not in error
 
 
+def test_cli_rejects_nonstandard_json_constant_without_assurance_result(tmp_path: Path):
+    invalid = tmp_path / "nonstandard-constant.json"
+    invalid.write_text('{"captured_at": NaN}', encoding="utf-8")
+    completed = run_cli(invalid)
+    assert completed.returncode == 2
+    error = json.loads(completed.stdout)
+    assert error == {"error": "ValueError", "message": "non-standard JSON constant: NaN"}
+    assert "disposition" not in error
+
+
 def test_cli_rejects_duplicate_top_level_security_key(tmp_path: Path):
     invalid = tmp_path / "duplicate-identity.json"
     invalid.write_text('{"identity": {}, "identity": {"worker_id": "forged"}}', encoding="utf-8")
