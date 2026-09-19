@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prs.local/schemas/owner-windows-level2-acceptance-result-v0.1.json",
+  "title": "PRS Owner Windows Level-2 Acceptance Result v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scope",
+    "disposition",
+    "checks",
+    "findings",
+    "limitations",
+    "provenance",
+    "production_promotion_allowed",
+    "overall_agentos_green"
+  ],
+  "properties": {
+    "scope": {
+      "const": "owner_windows_level2_physical_acceptance"
+    },
+    "disposition": {
+      "enum": ["pass", "fail", "blocked", "insufficient_evidence"]
+    },
+    "checks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/check" }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evaluator",
+        "version",
+        "generated_at",
+        "identity_fields",
+        "gate_states",
+        "negative_case_states"
+      ],
+      "properties": {
+        "evaluator": { "const": "prs.windows_acceptance" },
+        "version": { "const": "0.1" },
+        "generated_at": { "type": ["string", "null"] },
+        "identity_fields": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 12,
+          "maxItems": 12,
+          "uniqueItems": true
+        },
+        "gate_states": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-J]:(pass|fail|not_exercised|blocked)$" },
+          "minItems": 10,
+          "maxItems": 10,
+          "uniqueItems": true
+        },
+        "negative_case_states": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(?:[1-9]|1[0-5]):(pass|fail|not_exercised)$" },
+          "minItems": 15,
+          "maxItems": 15,
+          "uniqueItems": true
+        }
+      }
+    },
+    "production_promotion_allowed": { "const": false },
+    "overall_agentos_green": { "const": false }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_id", "status", "severity", "evidence"],
+      "properties": {
+        "check_id": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["pass", "fail"] },
+        "severity": { "enum": ["info", "high"] },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        }
+      }
+    },
+    "finding": {
+      "allOf": [
+        { "$ref": "#/$defs/check" },
+        {
+          "type": "object",
+          "required": ["finding_id"],
+          "properties": {
+            "finding_id": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    }
+  }
+}

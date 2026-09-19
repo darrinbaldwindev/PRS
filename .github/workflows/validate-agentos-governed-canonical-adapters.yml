@@ -1,0 +1,51 @@
+name: Validate AgentOS governed canonical adapters
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-governed-canonical-adapters:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: f56f050ad8c93ab206fa5462c9dab341568b38a3
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable governed canonical adapter probe
+        run: node scripts/challenge-agentos-governed-canonical-adapters.mjs validation-target/AgentOS f56f050ad8c93ab206fa5462c9dab341568b38a3
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/governed-canonical-adapters.json <<EOF
+          {
+            "schema": "prs.agentos-governed-canonical-adapters-workflow.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "prs_commit_sha": "${GITHUB_SHA}",
+            "agentos_target": "f56f050ad8c93ab206fa5462c9dab341568b38a3",
+            "powershell_process_execution_exercised": false,
+            "local_wake_execution_exercised": false,
+            "scheduler_execution_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "assurance_certified": false,
+            "production_promotion_allowed": false,
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-governed-canonical-adapters-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/governed-canonical-adapters.json
+          if-no-files-found: error

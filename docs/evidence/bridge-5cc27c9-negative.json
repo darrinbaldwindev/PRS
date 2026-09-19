@@ -1,0 +1,87 @@
+{
+  "schema": "prs.offline-adversarial-probe.v1",
+  "exact_head": "5cc27c96d48e18419cc678fd03b37c9e1c7ccd70",
+  "source_tree": "960c156f65ae5defe8d860d82ecdd762682d6445",
+  "module": "runtime/remote-upstream-reconciliation.mjs",
+  "captured_at": "2026-09-09T23:03:58.916Z",
+  "suite": "bridge",
+  "cases": [
+    {
+      "id": "green-missing-task",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "green-empty-task",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "expected-host_id-mismatch",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "expected-worker_id-mismatch",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "expected-code_identity-mismatch",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "expected-config_identity-mismatch",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "expected-wake_trace_id-mismatch",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "duplicate-other-wake",
+      "observed_grant": true,
+      "expected_grant": false,
+      "status": "defect_reproduced"
+    },
+    {
+      "id": "missing-receipt",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "green-fail",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "budget-unknown",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    },
+    {
+      "id": "missing-final-result",
+      "observed_grant": false,
+      "expected_grant": false,
+      "status": "pass"
+    }
+  ],
+  "assurance_certified": false,
+  "production_promotion_allowed": false,
+  "module_sha256": "62350902a817d6b8e45fa7b1aad2acb8f3fba8d6a60db59d284bb1b462c24dc8",
+  "positive_control": true,
+  "status": "DEFECT_REPRODUCED"
+}

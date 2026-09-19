@@ -41,7 +41,7 @@ def evaluate_remote_receipt(*, receipt, expected, persisted_receipt, green, reso
         check("completed_status", receipt.get("status") == "COMPLETED", "receipt:status")
         check("budget_reconciled", receipt.get("budget_status") == "RECONCILED", "receipt:budget_status")
         check("green_pass", green.get("disposition") == "pass", "green:disposition")
-        for field in ("project_id", "task_id", "mission_id", "wake_trace_id", "worker_id", "code_identity"):
+        for field in IDENTITY_FIELDS:
             check(f"green_{field}", text(expected.get(field)) and green.get(field) == expected.get(field),
                   f"green:{field}")
         refs = receipt.get("evidence")

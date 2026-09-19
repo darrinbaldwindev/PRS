@@ -1,0 +1,52 @@
+name: Validate AgentOS execution risk policy
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-execution-risk-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: fa451ee98af055650c536c4dcd5edf7f9d9defe3
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable execution risk probe
+        run: node scripts/challenge-agentos-execution-risk-policy.mjs validation-target/AgentOS fa451ee98af055650c536c4dcd5edf7f9d9defe3
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/execution-risk-policy.json <<EOF
+          {
+            "schema": "prs.agentos-execution-risk-policy-workflow.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "prs_commit_sha": "${GITHUB_SHA}",
+            "agentos_target": "fa451ee98af055650c536c4dcd5edf7f9d9defe3",
+            "operation_risk_mapping_exercised": false,
+            "powershell_process_execution_exercised": false,
+            "local_wake_execution_exercised": false,
+            "scheduler_execution_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "assurance_certified": false,
+            "production_promotion_allowed": false,
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-execution-risk-policy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/execution-risk-policy.json
+          if-no-files-found: error

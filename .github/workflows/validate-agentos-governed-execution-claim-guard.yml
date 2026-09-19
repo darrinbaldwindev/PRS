@@ -1,0 +1,53 @@
+name: Validate AgentOS governed execution claim guard
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assure-claim-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS probe source
+        uses: actions/checkout@v4
+      - name: Check out exact AgentOS target
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: 692b6bb9fb6c4fec3dff12cb266dd47458cab9cf
+          path: validation-target/AgentOS
+          persist-credentials: false
+      - name: Run immutable replay claim-guard probe
+        run: node scripts/challenge-agentos-governed-execution-claim-guard.mjs validation-target/AgentOS 692b6bb9fb6c4fec3dff12cb266dd47458cab9cf
+      - name: Record bounded assurance target
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation-evidence
+          cat > validation-evidence/governed-execution-claim-guard.json <<EOF
+          {
+            "schema": "prs.agentos-governed-execution-claim-guard-workflow.v1",
+            "workflow": "${GITHUB_WORKFLOW}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}",
+            "prs_commit_sha": "${GITHUB_SHA}",
+            "agentos_target": "692b6bb9fb6c4fec3dff12cb266dd47458cab9cf",
+            "real_powershell_process_exercised": false,
+            "local_wake_execution_exercised": false,
+            "scheduler_execution_exercised": false,
+            "claim_reclaim_exercised": false,
+            "correlated_recovery_resolution_exercised": false,
+            "owner_windows_laptop_exercised": false,
+            "assurance_certified": false,
+            "production_promotion_allowed": false,
+            "recorded_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+      - name: Upload bounded assurance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-governed-execution-claim-guard-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/governed-execution-claim-guard.json
+          if-no-files-found: error
