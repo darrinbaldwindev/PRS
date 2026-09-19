@@ -6,7 +6,7 @@ on:
 
 env:
   AGENTOS_DEFECT_TARGET: 607f2683b7d3b234fc6ffa70e2a7d42e31499c3a
-  AGENTOS_REPAIR_TARGET: bec3cbc8e2cc0f157365cbb78bcfd09a57a61fe0
+  AGENTOS_REPAIR_TARGET: d827547f12c180a1e37e2ae69d6da17659cce97b
 
 jobs:
   challenge-install-recovery:
