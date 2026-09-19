@@ -1,4 +1,5 @@
 import json
+import re
 
 import pytest
 
@@ -27,7 +28,7 @@ def test_duplicate_manifest_reference_is_rejected_deterministically():
 
 @pytest.mark.parametrize("constant", ["NaN", "Infinity", "-Infinity"])
 def test_nonstandard_numeric_constants_are_rejected_deterministically(constant: str):
-    with pytest.raises(ValueError, match=rf"^non-standard JSON constant: {constant.replace('-', r'\-')}$"):
+    with pytest.raises(ValueError, match=rf"^non-standard JSON constant: {re.escape(constant)}$"):
         loads_strict_json(f'{{"value":{constant}}}')
 
 
