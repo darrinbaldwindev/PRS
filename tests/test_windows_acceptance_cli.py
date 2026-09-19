@@ -24,12 +24,13 @@ def test_current_agentos_pr104_fixture_cli_is_fail_closed():
     completed = run_cli(CURRENT_FIXTURE)
     assert completed.returncode == 0, completed.stderr
     result = json.loads(completed.stdout)
-    assert result["disposition"] == "fail"
+    assert result["disposition"] == "blocked"
     assert result["production_promotion_allowed"] is False
     assert result["overall_agentos_green"] is False
-    assert "C:fail" in result["provenance"]["gate_states"]
-    assert "E:fail" in result["provenance"]["gate_states"]
-    assert "10:fail" in result["provenance"]["negative_case_states"]
+    assert "B:blocked" in result["provenance"]["gate_states"]
+    assert "C:blocked" in result["provenance"]["gate_states"]
+    assert "E:not_exercised" in result["provenance"]["gate_states"]
+    assert "10:not_exercised" in result["provenance"]["negative_case_states"]
 
 
 def test_cli_output_matches_result_schema_inventory():
