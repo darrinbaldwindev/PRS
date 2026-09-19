@@ -1,0 +1,114 @@
+name: Validate AgentOS project-file assurance target
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  challenge-declared-project-file-target:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PRS candidate
+        uses: actions/checkout@v4
+
+      - name: Detect explicit assurance target
+        id: target
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'validation-targets/agentos-project-file-current-head.json';
+          const output = process.env.GITHUB_OUTPUT;
+          if (!fs.existsSync(path)) {
+            fs.appendFileSync(output, 'enabled=false\n');
+            process.exit(0);
+          }
+          const target = JSON.parse(fs.readFileSync(path, 'utf8'));
+          if (!/^[0-9a-f]{40}$/.test(target.agentos_target ?? '')) {
+            throw new Error('agentos_target must be an exact 40-character lowercase commit SHA');
+          }
+          if (!Number.isInteger(target.pr) || target.pr <= 0) {
+            throw new Error('pr must be a positive integer');
+          }
+          fs.appendFileSync(output, 'enabled=true\n');
+          fs.appendFileSync(output, `sha=${target.agentos_target}\n`);
+          fs.appendFileSync(output, `pr=${target.pr}\n`);
+          NODE
+
+      - name: Check out exact AgentOS target
+        if: steps.target.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: darrinbaldwindev/AgentOS
+          ref: ${{ steps.target.outputs.sha }}
+          path: validation-target/AgentOS
+          persist-credentials: false
+
+      - name: Verify exact AgentOS identity
+        if: steps.target.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          actual="$(git -C validation-target/AgentOS rev-parse HEAD)"
+          test "$actual" = "${{ steps.target.outputs.sha }}"
+
+      - name: Require immutable project-file probes
+        if: steps.target.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          test -f scripts/challenge-agentos-project-file.mjs
+          test -f scripts/challenge-agentos-project-file-boundaries.mjs
+          test -f scripts/challenge-agentos-project-file-recovery-state.mjs
+          test -f scripts/challenge-agentos-recovery-governance.mjs
+          test -f scripts/challenge-agentos-project-file-commit-ownership.mjs
+
+      - name: Challenge project-file mutation semantics
+        if: steps.target.outputs.enabled == 'true'
+        run: node scripts/challenge-agentos-project-file.mjs validation-target/AgentOS ${{ steps.target.outputs.sha }}
+
+      - name: Challenge project-file boundaries
+        if: steps.target.outputs.enabled == 'true'
+        run: node scripts/challenge-agentos-project-file-boundaries.mjs validation-target/AgentOS ${{ steps.target.outputs.sha }}
+
+      - name: Challenge project-file recovery state
+        if: steps.target.outputs.enabled == 'true'
+        run: node scripts/challenge-agentos-project-file-recovery-state.mjs validation-target/AgentOS ${{ steps.target.outputs.sha }}
+
+      - name: Challenge recovery governance
+        if: steps.target.outputs.enabled == 'true'
+        run: node scripts/challenge-agentos-recovery-governance.mjs validation-target/AgentOS ${{ steps.target.outputs.sha }}
+
+      - name: Challenge commit ownership through publish and receipt
+        if: steps.target.outputs.enabled == 'true'
+        run: node scripts/challenge-agentos-project-file-commit-ownership.mjs validation-target/AgentOS ${{ steps.target.outputs.sha }}
+
+      - name: Record bounded evidence
+        if: always() && steps.target.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          mkdir -p validation-evidence
+          cat > validation-evidence/current-project-file.json <<JSON
+          {
+            "schema": "prs.agentos-project-file-current-head.v2",
+            "agentos_target": "${{ steps.target.outputs.sha }}",
+            "pr": ${{ steps.target.outputs.pr }},
+            "owner_windows_laptop_exercised": false,
+            "local_wake_execution_enabled": false,
+            "production_repository_mutated": false,
+            "assurance_scope": [
+              "project-file-mutation",
+              "approved-root-boundaries",
+              "recovery-state",
+              "recovery-governance",
+              "continuous-lock-ownership-through-publish-and-receipt"
+            ],
+            "note": "Exact-head adversarial assurance only. A reproduced negative case is evidence of a defect, not a CI admission failure. This does not establish owner-laptop acceptance, production readiness, or overall AgentOS GREEN."
+          }
+          JSON
+
+      - name: Upload evidence
+        if: always() && steps.target.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prs-agentos-project-file-target-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation-evidence/current-project-file.json
+          if-no-files-found: error
