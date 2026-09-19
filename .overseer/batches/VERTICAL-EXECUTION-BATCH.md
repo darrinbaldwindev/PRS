@@ -21,27 +21,28 @@ Maximize useful PRS assurance progress per owner interaction while preserving in
 ## Fresh exact state — 2026-09-19
 
 ### PRS
-- PR #17 exact head: `09e732a0a7cd06a82ea3fa38f7f30d0016b5c786`; OPEN / DRAFT / UNMERGED / mergeable.
-- Exact-head validation run #204 / `35445121276`: SUCCESS; Linux evaluator suite **247 passed in 0.69s**.
-- All 13 PR-triggered workflows on exact head `09e732a...` completed SUCCESS as probe/test execution evidence.
-- Validation artifact: `prs-validation-evidence-35445121276-1`, ID `10584268779`, SHA256 `59058abdc8feb7015b1e382333065d9939c81c5f993de8cb985f1a156bc275bc`.
-- Hosted Windows historical-regression artifact: `prs-hosted-windows-level2-35445121276-1`, ID `10585247484`, SHA256 `9afed76d2674e5c07b04d2560e45ad215ff595a3ec13d98a1c289cc19138d1e7`.
-- Generic validation explicitly records `target_semantics=historical_regression_fixture` and `current_agentos_head_validated=false`; hosted evidence records owner laptop and scheduler/local-wake not exercised.
+- PR #17 moved to exact head `114dc29cfb2018cfeb0058f1e57ea6d9dd933d3d`; OPEN / DRAFT / UNMERGED / mergeable.
+- The prior exact head `09e732a0a7cd06a82ea3fa38f7f30d0016b5c786` and its run #204 evidence are now historical and MUST NOT be presented as current-head verification.
+- Compare `09e732a...` -> `114dc29...`: 3 commits, 3 files: `scripts/evaluate-owner-windows-level2.py`, new `src/prs/strict_json.py`, new `tests/test_strict_json.py`.
+- The moved head centralizes strict raw-JSON duplicate-member rejection in dependency-light `prs.strict_json.loads_strict_json`; tests cover top-level, nested, and manifest-reference duplicates plus ordinary valid/non-object parsing.
+- Exact-head PR-triggered workflows are still settling: 12 of 13 observed completed SUCCESS; `Validate repository` run #209 / `35445739583` was still IN_PROGRESS at reconciliation. Therefore current exact-head repository validation is PENDING and no current-head PASS/verified claim is recorded yet.
 - PR #23 remains independent core v0.1 adapter/package hardening at last verified `ea6d40c06361f3f598eb71b2e009feefb46c4d37`; do not conflate or autonomously merge/rebase.
 
 ### AgentOS vertical
 - PR #104 fresh exact head: `6b32b2cad54eb58bbf8d30285c82af875a211686`; unresolved authority/admission remains BLOCKED/not proven, SG-08 is not inferred from other heads, physical owner Windows remains not proven.
-- PR #125 last verified exact head: `203273761794cca8c7a9636d45eae0249a435a72`; bounded SG-08 continuous-ownership repair candidate. Independent PRS challenge reported the two prior false-success cases no longer reproduce (`NEGATIVE_CASES_PASS`, `defect_count:0`) on that exact repair head only.
-- PR #129 last verified exact head: `ecd7fa33536fa963c51dbbcf381ee676e385c117`; read-only durable session/grant/consent evidence loader. PRS #31 independently challenged that exact loader contract with `NEGATIVE_CASES_PASS`; trusted issuers/authenticated transport/admission integration remain deliberately unproven.
+- PR #125 fresh exact head: `203273761794cca8c7a9636d45eae0249a435a72`; bounded SG-08 continuous-ownership repair candidate. No head movement; prior exact-head bounded evidence remains scoped to this exact repair head only.
+- PR #129 fresh exact head: `ecd7fa33536fa963c51dbbcf381ee676e385c117`; read-only durable session/grant/consent evidence loader. No head movement; trusted issuers/authenticated transport/admission integration remain deliberately unproven.
+- Fresh open-PR search for issuer/authenticator/consent-authority/admission implementation returned #129 and #104 only; no new canonical trusted issuer/authenticator implementation was identified.
 
-## Completed this cycle — parsing-layer duplicate-key closure
-PRS #17 now rejects duplicate JSON object member names at the owner-Windows CLI/input boundary before ordinary JSON mapping construction. The dependency-light implementation uses the standard-library JSON object-pairs hook and raises a deterministic `ValueError` on the first duplicate member name.
+## Completed this cycle — moved-head reconciliation
+The most important change this cycle was evidence hygiene rather than another mutation: PR #17 moved after the previous checkpoint. The old exact-head run/artifact claims were immediately downgraded to historical rather than transferred to the new head.
 
-Adversarial CLI tests cover duplicate top-level `identity`, duplicate `evidence_manifest` reference IDs, and duplicate nested identity fields. Ambiguous input exits code 2 and emits no assurance disposition. This closes the previously recorded raw duplicate-key gap for the canonical CLI path. Direct in-memory evaluator callers cannot detect duplicate raw JSON keys because parsing has already occurred; no broader claim is made.
+The moved-head diff was inspected. Strict JSON parsing is now a reusable package helper instead of CLI-local logic, which is consistent with the prior P0 ingestion-API goal. However, because the primary `Validate repository` workflow was still running, this batch deliberately withholds current-head verification until that exact workflow completes.
 
-The exact final head `09e732a...` passed 247 evaluator tests and all 13 PR-triggered workflows. Hosted Windows output remains historical regression evidence only.
+No trusted AgentOS issuer/authenticator implementation appeared, so PRS did not manufacture authority evidence, create an issuer, or wire the read-only loader into admission.
 
 ## Current Level-2 disposition
+- current PRS #17 exact-head validation: PENDING while run #209 settles.
 - current #104 authority/admission: BLOCKED / NOT PROVEN.
 - current #104 SG-08: no inherited verdict from repair/historical heads.
 - SG-08 old defect class: bounded repair evidence exists on #125 exact head only; no transfer to #104 or overall GREEN.
@@ -59,31 +60,30 @@ The exact final head `09e732a...` passed 247 evaluator tests and all 13 PR-trigg
 
 ## Replenished priority queue
 
-### P0-1 — Challenge trusted issuer/authenticator boundary
+### P0-1 — Settle PRS #17 exact-head evidence
+Poll exact head `114dc29...` until all PR-triggered workflows settle. Inspect run #209 exact test result and artifacts. Only then update PR body/batch/coordination with current-head verification claims. If the head moves again, restart exact-head reconciliation.
+
+### P0-2 — Challenge trusted issuer/authenticator boundary
 Fresh-scan AgentOS for a canonical session authenticator or grant/consent issuer. When implementation exists, independently challenge creation authority, exact actor/issuer/request/delivery/project/mission/intent/target/capability binding, lifetime/revocation, replay, and untrusted payload substitution. Do not allow the validator to become the issuer and do not create a competing authority plane.
 
-### P0-2 — Challenge admission integration
+### P0-3 — Challenge admission integration
 When the durable evidence loader is wired into admission, require evidence IDs to be selected from governed local state rather than accepted as truth from untrusted remote payloads. Rerun unchanged caller-auth, cross-request, replay, revoked/stale and admission->local-wake compatibility probes.
 
-### P0-3 — Evidence ingestion API consistency
-Inventory every owner-Windows evidence ingestion path. Ensure any future file/text ingestion helper reuses duplicate-key rejection rather than calling permissive `json.loads` directly. Keep `evaluate_owner_windows_acceptance(mapping)` deterministic and mapping-only; do not move filesystem/network authority into the evaluator.
+### P0-4 — Strict ingestion consistency
+After #17 exact-head CI settles, inventory raw JSON ingestion APIs and require assurance-facing raw-text paths to reuse `prs.strict_json.loads_strict_json` rather than permissive `json.loads`. Keep mapping-only evaluators deterministic and authority-free.
 
-### P0-4 — SG-08 completion gates
+### P0-5 — SG-08 completion gates
 Keep #125 verdict exact-head scoped. Challenge any head movement with unchanged successor-displacement probes. Require completion-grade independent review and required owner physical-Windows acceptance separately; do not infer them from POSIX CI.
 
-### P1 — Core and coordination hygiene
-Keep PR #23 independent. Keep this batch current after every continuation and durably log material exact-head changes to Overseer issue #49. Do not revive stale implementation lineages merely to consolidate history.
-
 ## Execution log
-- [x] polled exact PRS #17 head `09e732a...` after CI completion.
-- [x] verified all 13 PR-triggered workflows successful as execution evidence.
-- [x] verified Linux evaluator suite: 247 passed in 0.69s.
-- [x] recorded exact validation artifact ID/digest.
-- [x] recorded exact hosted-Windows historical-regression artifact ID/digest.
-- [x] verified CLI duplicate-key rejection on top-level, manifest-reference, and nested identity ambiguity.
-- [x] reconciled PR #17 body to exact `09e732a...` evidence.
-- [x] fresh-scanned AgentOS #104 and confirmed unchanged exact head/authority boundary.
-- [x] replenished next P0 to trusted issuer/integration challenge and ingestion-path consistency.
+- [x] fresh-scanned PRS #17 and detected head movement `09e732a...` -> `114dc29...`.
+- [x] downgraded all `09e732a...` exact-head validation/artifact claims to historical.
+- [x] compared moved heads: 3 commits / 3 files.
+- [x] inspected new reusable strict JSON helper and dedicated tests.
+- [x] polled current-head workflows: 12 SUCCESS, primary Validate repository still IN_PROGRESS.
+- [x] fresh-scanned AgentOS #104, #125 and #129; all unchanged.
+- [x] searched active AgentOS PRs for trusted issuer/authenticator implementation; none identified beyond the known loader/interface lineages.
+- [x] withheld current-head PASS/GREEN claims while exact validation remains unsettled.
 
 ## Replenishment rule
 Every autonomous continuation starts from a fresh repo/head scan. Never assume recorded heads remain current. Reconcile first, execute second, verify third, rescan fourth, then replenish again.
