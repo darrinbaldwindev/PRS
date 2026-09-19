@@ -31,8 +31,9 @@
       "type": "object", "minProperties": 1,
       "additionalProperties": {
         "type": "object", "additionalProperties": false,
-        "required": ["sha256", "source", "captured_by", "captured_at", "custody", "evidence_class", "code_identity", "config_identity", "identity", "assertions"],
+        "required": ["evidence_id", "sha256", "source", "captured_by", "captured_at", "custody", "evidence_class", "code_identity", "config_identity", "identity", "assertions"],
         "properties": {
+          "evidence_id": {"type": "string", "minLength": 1},
           "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
           "source": {"type": "string", "minLength": 1},
           "captured_by": {"type": "string", "minLength": 1},
@@ -49,7 +50,7 @@
           "assertions": {"$ref": "#/$defs/evidenceAssertions"}
         }
       },
-      "description": "Optional structurally for backward-readable FAIL/BLOCKED bundles, but required by the evaluator before PASS. Every referenced evidence ID must resolve here and bind to current code/config identity, capture time, independent custody, observed canonical identity, exact acceptance assertions, and an evidence class consistent with those assertions. A content digest cannot be reused across incompatible evidence classes."
+      "description": "Optional structurally for backward-readable FAIL/BLOCKED bundles, but required by the evaluator before PASS. Every referenced evidence ID must resolve here, match its record evidence_id, and bind to current code/config identity, capture time, independent custody, observed canonical identity, exact acceptance assertions, and an evidence class consistent with those assertions. A content digest cannot be reused across incompatible evidence classes or represented with conflicting provenance semantics."
     }
   },
   "$defs": {
