@@ -20,6 +20,14 @@ def run_cli(path: Path):
     )
 
 
+def assert_duplicate_key_rejected(completed, key: str):
+    assert completed.returncode == 2
+    error = json.loads(completed.stdout)
+    assert error["error"] == "ValueError"
+    assert error["message"] == f"duplicate JSON object key: {key}"
+    assert "disposition" not in error
+
+
 def test_current_agentos_pr104_fixture_cli_is_fail_closed():
     completed = run_cli(CURRENT_FIXTURE)
     assert completed.returncode == 0, completed.stderr
@@ -71,3 +79,27 @@ def test_cli_rejects_non_object_bundle_without_assurance_result(tmp_path: Path):
     error = json.loads(completed.stdout)
     assert error["error"] == "TypeError"
     assert "disposition" not in error
+
+
+def test_cli_rejects_duplicate_top_level_security_key(tmp_path: Path):
+    invalid = tmp_path / "duplicate-identity.json"
+    invalid.write_text('{"identity": {}, "identity": {"worker_id": "forged"}}', encoding="utf-8")
+    assert_duplicate_key_rejected(run_cli(invalid), "identity")
+
+
+def test_cli_rejects_duplicate_evidence_manifest_reference(tmp_path: Path):
+    invalid = tmp_path / "duplicate-evidence-ref.json"
+    invalid.write_text(
+        '{"evidence_manifest": {"artifact-1": {"sha256": "first"}, "artifact-1": {"sha256": "second"}}}',
+        encoding="utf-8",
+    )
+    assert_duplicate_key_rejected(run_cli(invalid), "artifact-1")
+
+
+def test_cli_rejects_duplicate_nested_assertion_or_identity_field(tmp_path: Path):
+    invalid = tmp_path / "duplicate-nested-field.json"
+    invalid.write_text(
+        '{"evidence_manifest": {"artifact-1": {"identity": {"task_id": "expected", "task_id": "forged"}}}}',
+        encoding="utf-8",
+    )
+    assert_duplicate_key_rejected(run_cli(invalid), "task_id")
