@@ -29,17 +29,18 @@ def bundle():
         assertions.setdefault(ref, []).append("custody:outside_worker_path:true")
     data["evidence_manifest"] = {
         ref: {
-            "sha256": "a" * 64,
+            "sha256": f"{index:064x}",
             "source": f"fixture:{ref}",
             "captured_by": "independent-test-harness",
             "captured_at": "2026-09-14T13:29:00+00:00",
             "custody": "independent",
+            "evidence_class": "gate" if ref.startswith("evidence:gate:") else "negative_case" if ref.startswith("evidence:negative:") else "custody",
             "code_identity": data["identity"]["code_identity"],
             "config_identity": data["identity"]["config_identity"],
             "identity": dict(data["identity"]),
             "assertions": values,
         }
-        for ref, values in assertions.items()
+        for index, (ref, values) in enumerate(assertions.items(), start=1)
     }
     return data
 
@@ -233,6 +234,27 @@ def test_shared_evidence_must_bind_every_acceptance_use():
     assert evaluate_owner_windows_acceptance(data)["disposition"] == "insufficient_evidence"
 
 
+def test_wrong_evidence_class_can_never_create_pass():
+    data = bundle(); data["evidence_manifest"]["evidence:gate:A"]["evidence_class"] = "negative_case"
+    result = evaluate_owner_windows_acceptance(data)
+    assert result["disposition"] == "insufficient_evidence"
+    assert "evidence_class_not_bound" in result["limitations"]
+
+
+def test_same_digest_cannot_be_reused_across_incompatible_evidence_classes():
+    data = bundle()
+    data["evidence_manifest"]["evidence:negative:1"]["sha256"] = data["evidence_manifest"]["evidence:gate:A"]["sha256"]
+    result = evaluate_owner_windows_acceptance(data)
+    assert result["disposition"] == "insufficient_evidence"
+    assert "evidence_class_not_bound" in result["limitations"]
+
+
+def test_same_digest_may_support_multiple_assertions_within_one_evidence_class():
+    data = bundle()
+    data["evidence_manifest"]["evidence:gate:B"]["sha256"] = data["evidence_manifest"]["evidence:gate:A"]["sha256"]
+    assert evaluate_owner_windows_acceptance(data)["disposition"] == "pass"
+
+
 def test_known_failure_still_outranks_provenance_insufficiency():
     data = bundle(); data["gates"]["E"]["status"] = "fail"; data.pop("evidence_manifest")
     assert evaluate_owner_windows_acceptance(data)["disposition"] == "fail"
@@ -245,9 +267,10 @@ def test_schema_inventory_matches_evaluator_contract():
     assert schema["properties"]["gates"]["required"] == list(GATES)
     assert schema["properties"]["negative_cases"]["required"] == list(NEGATIVE_CASES)
     manifest = schema["$defs"]["evidenceManifestRecord"]
-    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "code_identity", "config_identity", "identity", "assertions"]
+    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "evidence_class", "code_identity", "config_identity", "identity", "assertions"]
     assert schema["$defs"]["observedIdentity"]["minProperties"] == 1
     assert set(schema["$defs"]["observedIdentity"]["properties"]) == set(IDENTITY_FIELDS)
+    assert set(manifest["properties"]["evidence_class"]["enum"]) == {"gate", "negative_case", "custody"}
 
 
 def test_input_bundle_is_not_mutated():
