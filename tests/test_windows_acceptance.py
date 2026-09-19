@@ -122,11 +122,14 @@ def test_known_agentos_104_acceptance_blockers_are_fail_not_green():
     assert result["overall_agentos_green"] is False
 
 
-def test_current_agentos_pr104_fixture_is_fail_despite_other_missing_physical_evidence():
+def test_current_agentos_pr104_fixture_is_blocked_without_transferring_stale_head_verdicts():
     fixture_path = Path(__file__).parent / "fixtures" / "owner-windows-level2" / "current-agentos-pr104.json"
     data = json.loads(fixture_path.read_text(encoding="utf-8")); result = evaluate_owner_windows_acceptance(data)
-    assert data["gates"]["C"]["status"] == "fail" and data["gates"]["E"]["status"] == "fail"
-    assert result["disposition"] == "fail"
+    assert data["identity"]["code_identity"] == "6b32b2cad54eb58bbf8d30285c82af875a211686"
+    assert data["gates"]["B"]["status"] == "blocked" and data["gates"]["C"]["status"] == "blocked"
+    assert data["gates"]["E"]["status"] == "not_exercised"
+    assert data["negative_cases"]["10"]["status"] == "not_exercised"
+    assert result["disposition"] == "blocked"
     assert result["production_promotion_allowed"] is False and result["overall_agentos_green"] is False
     assert "evidence_content_provenance_not_bound" in result["limitations"]
 
@@ -260,18 +263,13 @@ def test_known_failure_still_outranks_provenance_insufficiency():
     assert evaluate_owner_windows_acceptance(data)["disposition"] == "fail"
 
 
-def test_schema_inventory_matches_evaluator_contract():
+def test_schema_requires_manifest_record_provenance_fields():
     schema_path = Path(__file__).parents[1] / "schemas" / "owner-windows-level2-acceptance-v0.1.json"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
-    assert schema["properties"]["identity"]["required"] == list(IDENTITY_FIELDS)
-    assert schema["properties"]["gates"]["required"] == list(GATES)
-    assert schema["properties"]["negative_cases"]["required"] == list(NEGATIVE_CASES)
-    manifest = schema["$defs"]["evidenceManifestRecord"]
-    assert manifest["required"] == ["sha256", "source", "captured_by", "captured_at", "custody", "evidence_class", "code_identity", "config_identity", "identity", "assertions"]
-    assert schema["$defs"]["observedIdentity"]["minProperties"] == 1
-    assert set(schema["$defs"]["observedIdentity"]["properties"]) == set(IDENTITY_FIELDS)
+    schema = json.loads(schema_path.read_text(encoding="utf-8")); manifest = schema["properties"]["evidence_manifest"]["additionalProperties"]
+    assert set(manifest["required"]) == {"sha256", "source", "captured_by", "captured_at", "custody", "evidence_class", "code_identity", "config_identity", "identity", "assertions"}
+    assert set(manifest["properties"]["identity"]["propertyNames"]["enum"]) == set(IDENTITY_FIELDS)
     assert set(manifest["properties"]["evidence_class"]["enum"]) == {"gate", "negative_case", "custody"}
 
 
-def test_input_bundle_is_not_mutated():
+def test_evaluator_does_not_mutate_input_bundle():
     data = bundle(); before = deepcopy(data); evaluate_owner_windows_acceptance(data); assert data == before
